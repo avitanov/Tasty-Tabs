@@ -10,7 +10,7 @@ import java.util.List;
  * Description: Represents dining tables in the system.
  */
 @Entity
-@Table(name = "table_details") // "table" is a reserved keyword
+@Table(name = "tables") // "table" is a reserved keyword
 @Data
 @NoArgsConstructor
 public class RestaurantTable {
@@ -24,5 +24,10 @@ public class RestaurantTable {
 
     @OneToMany(mappedBy = "table")
     private List<TabOrder> tabOrders;
+
+    public RestaurantTable(Integer tableNumber, Integer seatCapacity) {
+        this.tableNumber=tableNumber;
+        this.seatCapacity=seatCapacity;
+    }
 }
 
