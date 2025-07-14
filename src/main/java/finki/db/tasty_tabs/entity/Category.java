@@ -11,7 +11,7 @@ import java.util.List;
  * Description: Represents product categories.
  */
 @Entity
-@Table(name = "category")
+@Table(name = "categories")
 @Data
 @NoArgsConstructor
 public class Category {
@@ -28,4 +28,9 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;
+
+    public Category(String name, Boolean isAvailable) {
+        this.name=name;
+        this.isAvailable=isAvailable;
+    }
 }
