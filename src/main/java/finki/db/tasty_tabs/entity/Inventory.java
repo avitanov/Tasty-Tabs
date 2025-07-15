@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
  * Description: Tracks product quantities and restocking levels.
  */
 @Entity
-@Table(name = "inventory")
+@Table(name = "inventories")
 @Data
 @NoArgsConstructor
 public class Inventory {
@@ -27,4 +27,10 @@ public class Inventory {
 
     @Column(name = "restock_level")
     private Integer restockLevel;
+
+    public Inventory(Long id, Integer quantity, Integer restockLevel) {
+        this.productId=id;
+        this.quantity=quantity;
+        this.restockLevel=restockLevel;
+    }
 }

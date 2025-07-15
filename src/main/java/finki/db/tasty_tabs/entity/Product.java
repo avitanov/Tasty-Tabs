@@ -11,7 +11,7 @@ import java.util.List;
  * Description: Represents items that can be purchased in the system.
  */
 @Entity
-@Table(name = "product")
+@Table(name = "products")
 @Data
 @NoArgsConstructor
 public class Product {
