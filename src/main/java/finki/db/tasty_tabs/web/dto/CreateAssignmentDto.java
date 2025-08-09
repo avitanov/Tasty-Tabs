@@ -10,15 +10,13 @@ import java.time.LocalDateTime;
 public record CreateAssignmentDto(
         LocalDateTime clockInTime,
         LocalDateTime clockOutTime,
-        Long managerId,
         Long employeeId,
         Long shiftId
 ) {
-    public Assignment toAssignment(Manager manager,Employee employee,Shift shift) {
+    public Assignment toAssignment(Employee employee,Shift shift) {
         return new Assignment(
                 clockInTime,
                 clockOutTime,
-                manager,
                 employee,
                 shift
         );

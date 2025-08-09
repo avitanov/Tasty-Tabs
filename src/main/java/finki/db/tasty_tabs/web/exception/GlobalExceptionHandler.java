@@ -31,6 +31,10 @@ public class GlobalExceptionHandler {
             errorDetail.setProperty("description", "The username or password is incorrect");
 
         }
+        if (exception instanceof IllegalStateException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), exception.getMessage());
+            errorDetail.setProperty("description", "Invalid operation: " + exception.getMessage());
+        }
 
         if (exception instanceof AccountStatusException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());

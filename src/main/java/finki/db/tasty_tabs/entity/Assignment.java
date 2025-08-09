@@ -39,6 +39,13 @@ public class Assignment {
     @JoinColumn(name = "shift_id", referencedColumnName = "id", nullable = false)
     private Shift shift;
 
+    public Assignment(LocalDateTime clockInTime, LocalDateTime clockOutTime, Employee employee, Shift shift) {
+        this.clockInTime = clockInTime;
+        this.clockOutTime = clockOutTime;
+        this.employee = employee;
+        this.shift = shift;
+    }
+
     public Assignment(LocalDateTime clockInTime, LocalDateTime clockOutTime, Manager manager, Employee employee, Shift shift) {
         this.clockInTime = clockInTime;
         this.clockOutTime = clockOutTime;
