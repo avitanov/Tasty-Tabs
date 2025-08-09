@@ -7,10 +7,10 @@ import java.util.Optional;
 
 public interface RestaurantTableService {
 
-    Optional<RestaurantTable> findById(Integer id);
+    RestaurantTable findById(Integer id);
     List<RestaurantTable> getAll();
-    Optional<RestaurantTable> updateTable(Integer id,RestaurantTable restaurantTable);
+    RestaurantTable updateTable(Integer id,RestaurantTable restaurantTable);
     void deleteTable(Integer id);
     List<RestaurantTable> getAllBySeatCapacity(Integer seatCapacity);
-    Optional<RestaurantTable> createTable(RestaurantTable restaurantTable);
+    RestaurantTable createTable(RestaurantTable restaurantTable);
 }

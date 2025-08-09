@@ -4,6 +4,7 @@ import finki.db.tasty_tabs.entity.Assignment;
 import finki.db.tasty_tabs.entity.Employee;
 import finki.db.tasty_tabs.entity.Manager;
 import finki.db.tasty_tabs.entity.Shift;
+import finki.db.tasty_tabs.entity.exceptions.ShiftNotFoundException;
 import finki.db.tasty_tabs.repository.AssignmentRepository;
 import finki.db.tasty_tabs.repository.EmployeeRepository;
 import finki.db.tasty_tabs.repository.ManagerRepository;
@@ -11,82 +12,68 @@ import finki.db.tasty_tabs.repository.ShiftRepository;
 import finki.db.tasty_tabs.service.ShiftService;
 import finki.db.tasty_tabs.web.dto.AssignmentDto;
 import finki.db.tasty_tabs.web.dto.ClockInRequest;
-import finki.db.tasty_tabs.web.dto.CreateShiftRequest;
+import finki.db.tasty_tabs.web.dto.CreateShiftDto;
 import finki.db.tasty_tabs.web.dto.ShiftDto;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
 
 @Service
-@Transactional
-class ShiftServiceImpl implements ShiftService {
-
+public class ShiftServiceImpl implements ShiftService{
     private final ShiftRepository shiftRepository;
-    private final AssignmentRepository assignmentRepository;
     private final ManagerRepository managerRepository;
-    private final EmployeeRepository employeeRepository;
 
-    public ShiftServiceImpl(ShiftRepository shiftRepository, AssignmentRepository assignmentRepository, ManagerRepository managerRepository, EmployeeRepository employeeRepository) {
+    public ShiftServiceImpl(ShiftRepository shiftRepository, ManagerRepository managerRepository) {
         this.shiftRepository = shiftRepository;
-        this.assignmentRepository = assignmentRepository;
         this.managerRepository = managerRepository;
-        this.employeeRepository = employeeRepository;
+    }
+
+    private Manager getManagerByUsername(String username) {
+        return managerRepository.findByEmail(username)
+                .orElseThrow(() -> new AccessDeniedException("Only managers can assign shifts."));
     }
 
     @Override
-    public AssignmentDto clockIn(ClockInRequest clockInRequest) {
-        Assignment assignment = assignmentRepository.findByEmployeeIdAndShiftId(clockInRequest.getEmployeeId(), clockInRequest.getShiftId())
-                .orElseThrow(() -> new EntityNotFoundException("Assignment not found for employee " + clockInRequest.getEmployeeId() + " and shift " + clockInRequest.getShiftId()));
-
-        if (assignment.getClockInTime() != null) {
-            throw new IllegalStateException("Employee has already clocked in for this shift.");
-        }
-
-        assignment.setClockInTime(LocalDateTime.now());
-        Assignment savedAssignment = assignmentRepository.save(assignment);
-        
-        // Manual mapping to DTO
-        AssignmentDto dto = new AssignmentDto();
-        dto.setId(savedAssignment.getId());
-        dto.setClockInTime(savedAssignment.getClockInTime());
-        dto.setClockOutTime(savedAssignment.getClockOutTime());
-        dto.setManagerId(savedAssignment.getManager().getId());
-        dto.setEmployeeId(savedAssignment.getEmployee().getId());
-        dto.setShiftId(savedAssignment.getShift().getId());
-        return dto;
+    public List<Shift> getAllShifts() {
+        return shiftRepository.findAll();
     }
 
     @Override
-    public ShiftDto createAndAssignShift(CreateShiftRequest request) {
-        Manager manager = managerRepository.findById(request.getShift().getManagerId())
-                .orElseThrow(() -> new EntityNotFoundException("Manager not found with id: " + request.getShift().getManagerId()));
+    public Shift getShiftById(Long id) {
+        return shiftRepository.findById(id)
+                .orElseThrow(() -> new ShiftNotFoundException(id));
+    }
 
-        Shift shift = new Shift();
+    @Override
+    public Shift createShift(CreateShiftDto dto, String username) {
+        Manager manager = getManagerByUsername(username);
+        Shift shift = new Shift(dto.date(), dto.start(), dto.end(), manager);
+        return shiftRepository.save(shift);
+    }
+
+    @Override
+    public Shift updateShift(Long id, CreateShiftDto dto, String username) {
+        Manager manager = getManagerByUsername(username);
+        Shift shift = getShiftById(id);
+
+        shift.setDate(dto.date());
+        shift.setStart(dto.start());
+        shift.setEnd(dto.end());
         shift.setManager(manager);
-        shift.setDate(request.getShift().getDate());
-        shift.setStart(request.getShift().getStart());
-        shift.setEnd(request.getShift().getEnd());
-        Shift savedShift = shiftRepository.save(shift);
 
-        for (Long employeeId : request.getEmployeeIds()) {
-            Employee employee = employeeRepository.findById(employeeId)
-                    .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + employeeId));
-            Assignment assignment = new Assignment();
-            assignment.setShift(savedShift);
-            assignment.setEmployee(employee);
-            assignment.setManager(manager);
-            assignmentRepository.save(assignment);
+        return shiftRepository.save(shift);
+    }
+
+    @Override
+    public void deleteShift(Long id, String username) {
+        getManagerByUsername(username);
+        if (!shiftRepository.existsById(id)) {
+            throw new ShiftNotFoundException(id);
         }
-        
-        ShiftDto dto = new ShiftDto();
-        dto.setId(savedShift.getId());
-        dto.setDate(savedShift.getDate());
-        dto.setStart(savedShift.getStart());
-        dto.setEnd(savedShift.getEnd());
-        dto.setManagerId(savedShift.getManager().getId());
-        return dto;
+        shiftRepository.deleteById(id);
     }
 }

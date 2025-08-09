@@ -30,8 +30,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<Product> findById(Long id) {
-        return productRepository.findById(id);
+    public Product findById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     @Override
@@ -40,15 +41,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<Product> updateProduct(Long id, CreateProductDto dto) {
+    public Product updateProduct(Long id, CreateProductDto dto) {
         Optional<Product> productTmp=productRepository.findById(id);
         if(productTmp.isEmpty()){
             throw new ProductNotFoundException(id);
         }
 
-        if(categoryService.findById(dto.categoryId()).isEmpty()){
-            throw new CategoryNotFoundException();
-        }
 
         return productRepository.findById(id).map(existingProduct -> {
             if (dto.name() != null) {
@@ -60,7 +58,7 @@ public class ProductServiceImpl implements ProductService {
             if(dto.taxClass()!=null){
                 existingProduct.setTaxClass(dto.taxClass());
             }
-            existingProduct.setCategory(categoryService.findById(dto.categoryId()).get());
+            existingProduct.setCategory(categoryService.findById(dto.categoryId()));
             existingProduct.setDescription(dto.description());
             if(dto.manageInventory()==Boolean.TRUE){
                 if(existingProduct.getManageInventory()==Boolean.FALSE){
@@ -77,7 +75,7 @@ public class ProductServiceImpl implements ProductService {
                 existingProduct.setManageInventory(dto.manageInventory());
             }
             return productRepository.save(existingProduct);
-        });
+        }).orElseThrow(()-> new ProductNotFoundException(id));
     }
 
     @Override
@@ -92,10 +90,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<Product> createProduct(CreateProductDto dto) {
-        if(categoryService.findById(dto.categoryId()).isEmpty()){
-            throw new CategoryNotFoundException();
-        }
+    public Product createProduct(CreateProductDto dto) {
         Product productTmp=new Product();
         if (dto.name() != null) {
             productTmp.setName(dto.name());
@@ -106,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
         if(dto.taxClass()!=null){
             productTmp.setTaxClass(dto.taxClass());
         }
-        productTmp.setCategory(categoryService.findById(dto.categoryId()).get());
+        productTmp.setCategory(categoryService.findById(dto.categoryId()));
         productTmp.setDescription(dto.description());
 
         if(dto.manageInventory()!=null){
@@ -116,6 +111,6 @@ public class ProductServiceImpl implements ProductService {
         if(product.getManageInventory()==Boolean.TRUE){
             inventoryRepository.save(new Inventory(product.getId(),dto.quantity(),dto.restockLevel()));
         }
-        return Optional.of(product);
+        return product;
     }
 }

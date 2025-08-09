@@ -1,6 +1,7 @@
 package finki.db.tasty_tabs.service.impl;
 
 import finki.db.tasty_tabs.entity.RestaurantTable;
+import finki.db.tasty_tabs.entity.exceptions.TableNotFoundException;
 import finki.db.tasty_tabs.entity.exceptions.TableNumberAlreadyExistsException;
 import finki.db.tasty_tabs.repository.RestaurantTableRepository;
 import finki.db.tasty_tabs.service.RestaurantTableService;
@@ -19,8 +20,8 @@ public class RestaurantTableServiceImpl implements RestaurantTableService {
     }
 
     @Override
-    public Optional<RestaurantTable> findById(Integer id) {
-        return tableRepository.findById(id);
+    public RestaurantTable findById(Integer id) {
+        return tableRepository.findById(id).orElseThrow(()->new TableNotFoundException(id));
     }
 
     @Override
@@ -29,7 +30,7 @@ public class RestaurantTableServiceImpl implements RestaurantTableService {
     }
 
     @Override
-    public Optional<RestaurantTable> updateTable(Integer id, RestaurantTable restaurantTable) {
+    public RestaurantTable updateTable(Integer id, RestaurantTable restaurantTable) {
         if(tableRepository.findById(restaurantTable.getTableNumber()).isPresent() && id!=restaurantTable.getTableNumber()){
             throw new TableNumberAlreadyExistsException(restaurantTable.getTableNumber());
         }
@@ -41,7 +42,7 @@ public class RestaurantTableServiceImpl implements RestaurantTableService {
                 existingTable.setSeatCapacity(restaurantTable.getSeatCapacity());
             }
             return tableRepository.save(existingTable);
-        });
+        }).orElseThrow(()->new TableNotFoundException(id));
     }
 
     @Override
@@ -56,10 +57,10 @@ public class RestaurantTableServiceImpl implements RestaurantTableService {
     }
 
     @Override
-    public Optional<RestaurantTable> createTable(RestaurantTable restaurantTable) {
+    public RestaurantTable createTable(RestaurantTable restaurantTable) {
         if(tableRepository.findById(restaurantTable.getTableNumber()).isPresent()){
             throw new TableNumberAlreadyExistsException(restaurantTable.getTableNumber());
         }
-        return Optional.of(tableRepository.save(restaurantTable));
+        return tableRepository.save(restaurantTable);
     }
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  * Description: Represents a work shift in the system.
  */
 @Entity
-@Table(name = "shift")
+@Table(name = "shifts")
 @Data
 @NoArgsConstructor
 public class Shift {
@@ -22,7 +23,7 @@ public class Shift {
     private Long id;
 
     @Column(name = "date", nullable = false)
-    private LocalDateTime date;
+    private LocalDate date;
 
     @Column(name = "start_time", nullable = false)
     private LocalDateTime start;
@@ -36,4 +37,17 @@ public class Shift {
 
     @OneToMany(mappedBy = "shift")
     private List<Assignment> assignments;
+
+    public Shift(LocalDate date, LocalDateTime start, LocalDateTime end, Manager manager) {
+        this.date = date;
+        this.start = start;
+        this.end = end;
+        this.manager = manager;
+    }
+
+    public Shift(LocalDate date, LocalDateTime start, LocalDateTime end) {
+        this.date = date;
+        this.start = start;
+        this.end = end;
+    }
 }

@@ -1,11 +1,15 @@
 package finki.db.tasty_tabs.service;
 
-import finki.db.tasty_tabs.web.dto.AssignmentDto;
-import finki.db.tasty_tabs.web.dto.ClockInRequest;
-import finki.db.tasty_tabs.web.dto.CreateShiftRequest;
-import finki.db.tasty_tabs.web.dto.ShiftDto;
+import finki.db.tasty_tabs.entity.Shift;
+import finki.db.tasty_tabs.web.dto.CreateShiftDto;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.List;
 
 public interface ShiftService {
-    AssignmentDto clockIn(ClockInRequest clockInRequest);
-    ShiftDto createAndAssignShift(CreateShiftRequest request);
+    List<Shift> getAllShifts();
+    Shift getShiftById(Long id);
+    Shift createShift(CreateShiftDto dto, String username);
+    Shift updateShift(Long id, CreateShiftDto dto, String username);
+    void deleteShift(Long id, String username);
 }
