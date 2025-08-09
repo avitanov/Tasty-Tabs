@@ -50,6 +50,10 @@ public class GlobalExceptionHandler {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
             errorDetail.setProperty("description", "You are not authorized to access this resource");
         }
+        if (exception instanceof SecurityException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());
+            errorDetail.setProperty("description", "You are not authorized to perform this action");
+        }
 
         if (exception instanceof SignatureException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(403), exception.getMessage());

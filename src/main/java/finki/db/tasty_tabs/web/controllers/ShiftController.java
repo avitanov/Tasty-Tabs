@@ -15,11 +15,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/shifts")
-@RequiredArgsConstructor
 @Tag(name = "Shift API", description = "Endpoints for managing work shifts (Manager only)")
 public class ShiftController {
 
     private final ShiftService shiftService;
+
+    public ShiftController(ShiftService shiftService) {
+        this.shiftService = shiftService;
+    }
 
     @Operation(summary = "Get all shifts")
     @GetMapping
