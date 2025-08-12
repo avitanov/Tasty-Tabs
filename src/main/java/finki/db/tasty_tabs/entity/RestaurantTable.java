@@ -25,6 +25,9 @@ public class RestaurantTable {
     @OneToMany(mappedBy = "table")
     private List<TabOrder> tabOrders;
 
+    @OneToMany(mappedBy = "restaurantTable")
+    private List<ReservationManagedFrontStaff> managedReservations;
+
     public RestaurantTable(Integer tableNumber, Integer seatCapacity) {
         this.tableNumber=tableNumber;
         this.seatCapacity=seatCapacity;

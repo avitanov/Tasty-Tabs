@@ -1,15 +1,15 @@
 package finki.db.tasty_tabs.service.impl;
 
-import finki.db.tasty_tabs.entity.Reservation;
-import finki.db.tasty_tabs.entity.User;
+import finki.db.tasty_tabs.entity.*;
 import finki.db.tasty_tabs.entity.exceptions.ReservationNotFoundException;
-import finki.db.tasty_tabs.repository.ReservationRepository;
-import finki.db.tasty_tabs.repository.UserRepository;
+import finki.db.tasty_tabs.entity.exceptions.TableNotFoundException;
+import finki.db.tasty_tabs.repository.*;
 import finki.db.tasty_tabs.service.ReservationService;
 import finki.db.tasty_tabs.web.dto.CreateReservationDto;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,10 +18,16 @@ public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
+    private final FrontStaffRepository frontStaffRepository;
+    private final RestaurantTableRepository restaurantTableRepository;
+    private final ReservationManagedFrontStaffRepository reservationManagedFrontStaffRepository;
 
-    public ReservationServiceImpl(ReservationRepository reservationRepository, UserRepository userRepository) {
+    public ReservationServiceImpl(ReservationRepository reservationRepository, UserRepository userRepository, FrontStaffRepository frontStaffRepository, RestaurantTableRepository restaurantTableRepository, ReservationManagedFrontStaffRepository reservationManagedFrontStaffRepository) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
+        this.frontStaffRepository = frontStaffRepository;
+        this.restaurantTableRepository = restaurantTableRepository;
+        this.reservationManagedFrontStaffRepository = reservationManagedFrontStaffRepository;
     }
 
     @Override
@@ -74,5 +80,54 @@ public class ReservationServiceImpl implements ReservationService {
     public void deleteReservation(Long id) {
         reservationRepository.deleteById(id);
     }
+
+    @Override
+    public List<Reservation> getAllReservationsByUser(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User with email " + userEmail + " not found."));
+        return reservationRepository.findAllByUser(user);
+    }
+
+    @Override
+    public ReservationManagedFrontStaff acceptReservation(Long reservationId, String frontStaffEmail, Integer tableNumber) {
+        User user = userRepository.findByEmail(frontStaffEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User with email " + frontStaffEmail + " not found."));
+
+        if (!(user instanceof FrontStaff)) {
+            throw new SecurityException("User is not authorized to accept reservations as they are not a FrontStaff member.");
+        }
+        FrontStaff frontStaff = (FrontStaff) user;
+        // 2. Fetch all other required entities
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException(reservationId));
+
+        RestaurantTable table = restaurantTableRepository.findById(tableNumber)
+                .orElseThrow(() -> new TableNotFoundException(tableNumber));
+
+        // 3. Create the new ReservationManagedFrontStaff entity
+        ReservationManagedFrontStaff managedReservation = new ReservationManagedFrontStaff();
+        managedReservation.setReservation(reservation);
+        managedReservation.setFrontStaff(frontStaff);
+        managedReservation.setRestaurantTable(table);
+
+        // 4. Save the new entity to the database
+        return reservationManagedFrontStaffRepository.save(managedReservation);
+    }
+    @Override
+    public List<Reservation> getAllReservationsForToday() {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(23, 59, 59);
+
+        return reservationRepository.findAllByDatetimeBetween(startOfDay, endOfDay);
+    }
+
+    @Override
+    public List<Reservation> getAllReservationsForDate(LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(23, 59, 59);
+
+        return reservationRepository.findAllByDatetimeBetween(startOfDay, endOfDay);
+    }
+
 }
 

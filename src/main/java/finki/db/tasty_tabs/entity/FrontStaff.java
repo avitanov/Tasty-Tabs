@@ -27,4 +27,7 @@ public class FrontStaff extends Employee {
     // Relationship for tab orders handled by this front staff member
     @OneToMany(mappedBy = "frontStaff")
     private List<TabOrder> tabOrders;
+
+    @OneToMany(mappedBy = "frontStaff")
+    private List<ReservationManagedFrontStaff> managedReservations;
 }

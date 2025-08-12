@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Entity: Reservation
@@ -35,4 +36,7 @@ public class Reservation {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "reservation")
+    private List<ReservationManagedFrontStaff> managedReservations;
 }

@@ -7,10 +7,12 @@ import finki.db.tasty_tabs.web.dto.ReservationDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,5 +60,45 @@ public class ReservationController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         reservationService.deleteReservation(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Get all reservations made by the logged-in user")
+    @GetMapping("/myReservations")
+    public List<ReservationDto> getMyReservations(Authentication authentication) {
+        String username = authentication.getName();
+        return reservationService.getAllReservationsByUser(username)
+                .stream()
+                .map(ReservationDto::from)
+                .collect(Collectors.toList());
+    }
+
+    @Operation(summary = "Accept a reservation by a front staff member")
+    @PostMapping("/accept/{reservationId}/table/{tableNumber}")
+    public ResponseEntity<ReservationDto> acceptReservation(
+            @PathVariable Long reservationId,
+            @PathVariable Integer tableNumber,
+            Authentication authentication
+    ) {
+        String frontStaffEmail = authentication.getName();
+        reservationService.acceptReservation(reservationId,frontStaffEmail,tableNumber);
+        return ResponseEntity.ok(ReservationDto.from(reservationService.getReservationById(reservationId)));
+    }
+    @Operation(summary = "Get all reservations for today")
+    @GetMapping("/today")
+    public List<ReservationDto> getTodayReservations() {
+        return reservationService.getAllReservationsForToday()
+                .stream()
+                .map(ReservationDto::from)
+                .collect(Collectors.toList());
+    }
+
+    @Operation(summary = "Get all reservations for a specific date")
+    @GetMapping("/by-date")
+    public List<ReservationDto> getReservationsByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return reservationService.getAllReservationsForDate(date)
+                .stream()
+                .map(ReservationDto::from)
+                .collect(Collectors.toList());
     }
 }
