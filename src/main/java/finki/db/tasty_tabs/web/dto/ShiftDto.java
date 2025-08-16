@@ -11,7 +11,7 @@ public record ShiftDto(
         LocalDate date,
         LocalDateTime start,
         LocalDateTime end,
-        Manager manager,
+        ManagerDto manager,
         List<AssignmentDto> assignments
 ) {
     public static ShiftDto fromShift(Shift shift) {
@@ -20,7 +20,7 @@ public record ShiftDto(
                 shift.getDate(),
                 shift.getStart(),
                 shift.getEnd(),
-                shift.getManager(),
+                ManagerDto.from(shift.getManager()),
                 shift.getAssignments().stream()
                         .map(AssignmentDto::fromAssignment)
                         .toList()

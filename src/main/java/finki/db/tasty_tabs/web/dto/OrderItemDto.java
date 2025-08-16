@@ -10,7 +10,8 @@ public record OrderItemDto(
         Double price,
         Boolean isProcessed,
         LocalDateTime timestamp,
-        Long productId
+        Long productId,
+        String productName
 ) {
     public static OrderItemDto from(OrderItem orderItem) {
         return new OrderItemDto(
@@ -19,7 +20,8 @@ public record OrderItemDto(
                 orderItem.getPrice(),
                 orderItem.getIsProcessed(),
                 orderItem.getTimestamp(),
-                orderItem.getProduct().getId()
+                orderItem.getProduct().getId(),
+                orderItem.getProduct().getName()
         );
     }
 }

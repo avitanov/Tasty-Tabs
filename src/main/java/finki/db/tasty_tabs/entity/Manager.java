@@ -11,7 +11,7 @@ import java.util.List;
  * Description: A disjoint specialization of the Employee entity for managers.
  */
 @Entity
-@Table(name = "manager")
+@Table(name = "managers")
 @Data
 @NoArgsConstructor
 @PrimaryKeyJoinColumn(name = "employee_id")
@@ -24,4 +24,5 @@ public class Manager extends Employee {
     // Relationship for assignments created by this manager
     @OneToMany(mappedBy = "manager")
     private List<Assignment> createdAssignments;
+
 }

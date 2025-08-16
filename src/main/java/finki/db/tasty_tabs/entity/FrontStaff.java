@@ -30,4 +30,36 @@ public class FrontStaff extends Employee {
 
     @OneToMany(mappedBy = "frontStaff")
     private List<ReservationManagedFrontStaff> managedReservations;
+
+    public Double getTipPercent() {
+        return tipPercent;
+    }
+
+    public void setTipPercent(Double tipPercent) {
+        this.tipPercent = tipPercent;
+    }
+
+    public StaffRole getStaffRole() {
+        return staffRole;
+    }
+
+    public void setStaffRole(StaffRole staffRole) {
+        this.staffRole = staffRole;
+    }
+
+    public List<TabOrder> getTabOrders() {
+        return tabOrders;
+    }
+
+    public void setTabOrders(List<TabOrder> tabOrders) {
+        this.tabOrders = tabOrders;
+    }
+
+    public List<ReservationManagedFrontStaff> getManagedReservations() {
+        return managedReservations;
+    }
+
+    public void setManagedReservations(List<ReservationManagedFrontStaff> managedReservations) {
+        this.managedReservations = managedReservations;
+    }
 }

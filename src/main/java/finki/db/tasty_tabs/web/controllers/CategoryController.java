@@ -2,13 +2,16 @@ package finki.db.tasty_tabs.web.controllers;
 
 import finki.db.tasty_tabs.entity.Category;
 import finki.db.tasty_tabs.service.CategoryService;
+import finki.db.tasty_tabs.web.dto.CategoryDto;
 import finki.db.tasty_tabs.web.dto.CreateCategoryDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -23,33 +26,38 @@ public class CategoryController {
 
     @Operation(summary = "Get all categories")
     @GetMapping
-    public List<Category> findAll() {
-        return categoryService.getAllCategories();
+    public ResponseEntity<List<CategoryDto>> findAll() {
+        List<CategoryDto> categories = categoryService.getAllCategories().stream()
+                .map(CategoryDto::from)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(categories);
     }
 
     @Operation(summary = "Get category by ID")
     @GetMapping("/{id}")
-    public Category findById(@PathVariable Long id) {
-        return categoryService.findById(id);
+    public ResponseEntity<CategoryDto> findById(@PathVariable Long id) {
+        Category category = categoryService.findById(id);
+        return ResponseEntity.ok(CategoryDto.from(category));
     }
 
     @Operation(summary = "Create category")
     @PostMapping("/add")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Category save(@RequestBody CreateCategoryDto createCategoryDto) {
-        return categoryService.createCategory(createCategoryDto.toCategory());
+    public ResponseEntity<CategoryDto> save(@RequestBody CreateCategoryDto createCategoryDto) {
+        Category saved = categoryService.createCategory(createCategoryDto.toCategory());
+        return ResponseEntity.status(HttpStatus.CREATED).body(CategoryDto.from(saved));
     }
 
     @Operation(summary = "Update category")
     @PutMapping("/edit/{id}")
-    public Category update(@PathVariable Long id, @RequestBody CreateCategoryDto createCategoryDto) {
-        return categoryService.updateCategory(id, createCategoryDto.toCategory());
+    public ResponseEntity<CategoryDto> update(@PathVariable Long id, @RequestBody CreateCategoryDto createCategoryDto) {
+        Category updated = categoryService.updateCategory(id, createCategoryDto.toCategory());
+        return ResponseEntity.ok(CategoryDto.from(updated));
     }
 
     @Operation(summary = "Delete category")
     @DeleteMapping("/delete/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
     }
 }

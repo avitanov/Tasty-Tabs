@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * Description: Represents shift assignment for each employee.
  */
 @Entity
-@Table(name = "assignment")
+@Table(name = "assignments")
 @Data
 @NoArgsConstructor
 public class Assignment {
@@ -51,6 +51,54 @@ public class Assignment {
         this.clockOutTime = clockOutTime;
         this.manager = manager;
         this.employee = employee;
+        this.shift = shift;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getClockInTime() {
+        return clockInTime;
+    }
+
+    public void setClockInTime(LocalDateTime clockInTime) {
+        this.clockInTime = clockInTime;
+    }
+
+    public LocalDateTime getClockOutTime() {
+        return clockOutTime;
+    }
+
+    public void setClockOutTime(LocalDateTime clockOutTime) {
+        this.clockOutTime = clockOutTime;
+    }
+
+    public Manager getManager() {
+        return manager;
+    }
+
+    public void setManager(Manager manager) {
+        this.manager = manager;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    public Shift getShift() {
+        return shift;
+    }
+
+    public void setShift(Shift shift) {
         this.shift = shift;
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
  * Description: Represents customers in the system. Inherits from User.
  */
 @Entity
-@Table(name = "customer")
+@Table(name = "customers")
 @Data
 @NoArgsConstructor
 @PrimaryKeyJoinColumn(name = "user_id") // Links to the User table

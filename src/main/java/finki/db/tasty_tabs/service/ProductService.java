@@ -1,11 +1,9 @@
 package finki.db.tasty_tabs.service;
 
-import finki.db.tasty_tabs.entity.Category;
 import finki.db.tasty_tabs.entity.Product;
 import finki.db.tasty_tabs.web.dto.CreateProductDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ProductService {
     Product findById(Long id);

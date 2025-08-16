@@ -3,7 +3,6 @@ package finki.db.tasty_tabs.service.impl;
 
 import finki.db.tasty_tabs.entity.Inventory;
 import finki.db.tasty_tabs.entity.Product;
-import finki.db.tasty_tabs.entity.exceptions.CategoryNotFoundException;
 import finki.db.tasty_tabs.entity.exceptions.ProductNotFoundException;
 import finki.db.tasty_tabs.repository.InventoryRepository;
 import finki.db.tasty_tabs.repository.ProductRepository;
@@ -42,40 +41,55 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product updateProduct(Long id, CreateProductDto dto) {
-        Optional<Product> productTmp=productRepository.findById(id);
-        if(productTmp.isEmpty()){
-            throw new ProductNotFoundException(id);
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        // Update product fields
+        if (dto.name() != null) {
+            existingProduct.setName(dto.name());
+        }
+        if (dto.price() != null) {
+            existingProduct.setPrice(dto.price());
+        }
+        if (dto.taxClass() != null) {
+            existingProduct.setTaxClass(dto.taxClass());
+        }
+        if (dto.categoryId() != null) {
+            existingProduct.setCategory(categoryService.findById(dto.categoryId()));
+        }
+        if (dto.description() != null) {
+            existingProduct.setDescription(dto.description());
         }
 
+        // Manage inventory
+        if (Boolean.TRUE.equals(dto.manageInventory())) {
+            // ако производот претходно не менаџирал inventory -> креирај нов
+            if (Boolean.FALSE.equals(existingProduct.getManageInventory())) {
+                Inventory inventory = new Inventory(existingProduct, dto.quantity(), dto.restockLevel());
+                inventoryRepository.save(inventory);
+            } else {
+                // ако веќе постои -> update
+                Inventory inventory = inventoryRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Inventory not found for product " + id));
+                if (dto.quantity() != null) {
+                    inventory.setQuantity(dto.quantity());
+                }
+                if (dto.restockLevel() != null) {
+                    inventory.setRestockLevel(dto.restockLevel());
+                }
+                inventoryRepository.save(inventory);
+            }
+        } else if (Boolean.FALSE.equals(dto.manageInventory())) {
+            // ако од TRUE се префрла на FALSE -> бриши го inventory-то
+            inventoryRepository.findById(id).ifPresent(inventoryRepository::delete);
+        }
 
-        return productRepository.findById(id).map(existingProduct -> {
-            if (dto.name() != null) {
-                existingProduct.setName(dto.name());
-            }
-            if (dto.price() != null) {
-                existingProduct.setPrice(dto.price());
-            }
-            if(dto.taxClass()!=null){
-                existingProduct.setTaxClass(dto.taxClass());
-            }
-            existingProduct.setCategory(categoryService.findById(dto.categoryId()));
-            existingProduct.setDescription(dto.description());
-            if(dto.manageInventory()==Boolean.TRUE){
-                if(existingProduct.getManageInventory()==Boolean.FALSE){
-                    inventoryRepository.save(new Inventory(id,dto.quantity(),dto.restockLevel()));
-                }
-                else{
-                    Inventory inventorytmp=inventoryRepository.findById(id).get();
-                    inventorytmp.setQuantity(dto.quantity());
-                    inventorytmp.setRestockLevel(dto.restockLevel());
-                    inventoryRepository.save(inventorytmp);
-                }
-            }
-            if(dto.manageInventory()!=null){
-                existingProduct.setManageInventory(dto.manageInventory());
-            }
-            return productRepository.save(existingProduct);
-        }).orElseThrow(()-> new ProductNotFoundException(id));
+        // на крај секогаш го сетирај manageInventory флагот
+        if (dto.manageInventory() != null) {
+            existingProduct.setManageInventory(dto.manageInventory());
+        }
+
+        return productRepository.save(existingProduct);
     }
 
     @Override
@@ -109,7 +123,8 @@ public class ProductServiceImpl implements ProductService {
         }
         Product product=productRepository.save(productTmp);
         if(product.getManageInventory()==Boolean.TRUE){
-            inventoryRepository.save(new Inventory(product.getId(),dto.quantity(),dto.restockLevel()));
+            Inventory inventory = new Inventory(product, dto.quantity(), dto.restockLevel());
+            inventoryRepository.save(inventory);
         }
         return product;
     }

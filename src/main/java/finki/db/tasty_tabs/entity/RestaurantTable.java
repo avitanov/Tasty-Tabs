@@ -22,7 +22,7 @@ public class RestaurantTable {
     @Column(name = "seat_capacity", nullable = false)
     private Integer seatCapacity;
 
-    @OneToMany(mappedBy = "table")
+    @OneToMany(mappedBy = "restaurantTable")
     private List<TabOrder> tabOrders;
 
     @OneToMany(mappedBy = "restaurantTable")

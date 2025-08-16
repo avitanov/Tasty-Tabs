@@ -28,9 +28,42 @@ public class Inventory {
     @Column(name = "restock_level")
     private Integer restockLevel;
 
-    public Inventory(Long id, Integer quantity, Integer restockLevel) {
-        this.productId=id;
-        this.quantity=quantity;
-        this.restockLevel=restockLevel;
+    public Inventory(Product product, Integer quantity, Integer restockLevel) {
+        this.product = product;  // @MapsId ќе го земе id-то
+        this.quantity = quantity;
+        this.restockLevel = restockLevel;
+    }
+
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public Integer getRestockLevel() {
+        return restockLevel;
+    }
+
+    public void setRestockLevel(Integer restockLevel) {
+        this.restockLevel = restockLevel;
     }
 }

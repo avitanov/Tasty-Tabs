@@ -1,6 +1,7 @@
 package finki.db.tasty_tabs.entity;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,7 +9,6 @@ import java.util.List;
 
 /**
  * Entity: Category
- * Description: Represents product categories.
  */
 @Entity
 @Table(name = "categories")
@@ -20,17 +20,18 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(name = "is_available")
     private Boolean isAvailable;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Product> products;
 
     public Category(String name, Boolean isAvailable) {
-        this.name=name;
-        this.isAvailable=isAvailable;
+        this.name = name;
+        this.isAvailable = isAvailable;
     }
 }

@@ -20,9 +20,6 @@ import java.util.List;
 
 @Configuration
 public class OpenApiConfig {
-    private static final List<ParameterItem> GLOBAL_PARAMETERS = List.of(
-            new ParameterItem("Accept-Language", "Response Language", false, "header", "string")
-    );
 
     @Bean
     public ModelResolver modelResolver(ObjectMapper objectMapper) {
@@ -31,18 +28,9 @@ public class OpenApiConfig {
 
     @Bean
     public OpenApiCustomizer globalHeaderCustomizer() {
-        return openApi -> openApi.getPaths().values().forEach(pathItem ->
-                pathItem.readOperations().forEach(operation -> {
-                    GLOBAL_PARAMETERS.forEach(parameterItem -> {
-                        Parameter parameter = new Parameter()
-                                .in(parameterItem.getIn())
-                                .name(parameterItem.getName())
-                                .description(parameterItem.getDescription())
-                                .required(parameterItem.isRequired())
-                                .schema(new StringSchema());
-                        operation.addParametersItem(parameter);
-                    });
-                }));
+        return openApi -> {
+            // No action is performed here, effectively removing the global parameter
+        };
     }
 
     @Bean
@@ -58,16 +46,5 @@ public class OpenApiConfig {
                 )
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .addServersItem(new Server().url("http://localhost:8080").description("Local server"));
-    }
-
-    @Data
-    @AllArgsConstructor
-    private static class ParameterItem {
-        private String name;
-        private String description;
-        private boolean required;
-        private String in;
-        private String type;
-
     }
 }

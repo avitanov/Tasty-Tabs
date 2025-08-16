@@ -50,4 +50,52 @@ public class Shift {
         this.start = start;
         this.end = end;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalDateTime getStart() {
+        return start;
+    }
+
+    public void setStart(LocalDateTime start) {
+        this.start = start;
+    }
+
+    public LocalDateTime getEnd() {
+        return end;
+    }
+
+    public void setEnd(LocalDateTime end) {
+        this.end = end;
+    }
+
+    public Manager getManager() {
+        return manager;
+    }
+
+    public void setManager(Manager manager) {
+        this.manager = manager;
+    }
+
+    public List<Assignment> getAssignments() {
+        return assignments;
+    }
+
+    public void setAssignments(List<Assignment> assignments) {
+        this.assignments = assignments;
+    }
 }

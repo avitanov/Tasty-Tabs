@@ -10,16 +10,16 @@ public record AssignmentDto(
         Long id,
         LocalDateTime clockInTime,
         LocalDateTime clockOutTime,
-        Manager manager,
-        Employee employee
+        ManagerDto manager,
+        EmployeeDto employee
 ) {
     public static AssignmentDto fromAssignment(Assignment assignment) {
         return new AssignmentDto(
                 assignment.getId(),
                 assignment.getClockInTime(),
                 assignment.getClockOutTime(),
-                assignment.getManager(),
-                assignment.getEmployee()
+                ManagerDto.from(assignment.getManager()),
+                EmployeeDto.from(assignment.getEmployee())
         );
     }
 }

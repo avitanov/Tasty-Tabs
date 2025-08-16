@@ -11,9 +11,8 @@ import java.util.List;
  * Description: Represents employees of the system. Inherits from User.
  */
 @Entity
-@Table(name = "employee")
+@Table(name = "employees")
 @Data
-@NoArgsConstructor
 @PrimaryKeyJoinColumn(name = "user_id") // Links to the User table
 public class Employee extends User {
 
@@ -26,4 +25,42 @@ public class Employee extends User {
     // Relationship for assignments given to this employee
     @OneToMany(mappedBy = "employee")
     private List<Assignment> assignments;
+
+    public Employee() {
+    }
+    public Employee(Double netSalary, Double grossSalary) {
+        this.netSalary = netSalary;
+        this.grossSalary = grossSalary;
+    }
+
+    public Employee(Long id, String email, String street, String city, String phoneNumber, Double netSalary, Double grossSalary, List<Assignment> assignments) {
+        super(id, email, street, city, phoneNumber);
+        this.netSalary = netSalary;
+        this.grossSalary = grossSalary;
+        this.assignments = assignments;
+    }
+
+    public Double getNetSalary() {
+        return netSalary;
+    }
+
+    public List<Assignment> getAssignments() {
+        return assignments;
+    }
+
+    public void setAssignments(List<Assignment> assignments) {
+        this.assignments = assignments;
+    }
+
+    public void setNetSalary(Double netSalary) {
+        this.netSalary = netSalary;
+    }
+
+    public Double getGrossSalary() {
+        return grossSalary;
+    }
+
+    public void setGrossSalary(Double grossSalary) {
+        this.grossSalary = grossSalary;
+    }
 }

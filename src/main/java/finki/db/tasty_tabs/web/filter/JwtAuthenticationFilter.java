@@ -62,17 +62,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("JWT token validated");
+//                log.debug("JWT token validated");
             }
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
-            log.debug("JWT token expired: {}", e.getMessage());
+//            log.debug("JWT token expired: {}", e.getMessage());
             FilterExceptionHandler.handleException(request, response, e);
         } catch (AuthorizationDeniedException e) {
-            log.debug("Authorization denied: {}", e.getMessage());
+//            log.debug("Authorization denied: {}", e.getMessage());
             FilterExceptionHandler.handleException(request, response, e);
         } catch (JwtException e) {
-            log.debug("JWT token invalid: {}", e.getMessage());
+//            log.debug("JWT token invalid: {}", e.getMessage());
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             FilterExceptionHandler.handleException(request, response, e);

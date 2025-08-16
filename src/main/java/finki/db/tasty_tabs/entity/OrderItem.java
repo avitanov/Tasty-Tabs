@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * Description: Represents items in a customer's order.
  */
 @Entity
-@Table(name = "order_item")
+@Table(name = "order_items")
 @Data
 @NoArgsConstructor
 public class OrderItem {
@@ -29,7 +29,7 @@ public class OrderItem {
     @Column(name = "is_processed")
     private Boolean isProcessed;
 
-    @Column(name = "timestamp", nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime timestamp;
 
     @ManyToOne

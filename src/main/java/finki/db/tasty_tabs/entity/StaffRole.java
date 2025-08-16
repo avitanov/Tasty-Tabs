@@ -11,7 +11,7 @@ import java.util.List;
  * Description: Defines roles for staff members.
  */
 @Entity
-@Table(name = "staff_role")
+@Table(name = "staff_roles")
 @Data
 @NoArgsConstructor
 public class StaffRole {

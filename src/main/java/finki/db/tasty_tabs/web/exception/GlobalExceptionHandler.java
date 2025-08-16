@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleSecurityExceptions(Exception exception) {
         ProblemDetail errorDetail = null;
 
-        log.warn("Security exception: {}", exception.getMessage());
+//        log.warn("Security exception: {}", exception.getMessage());
         if (exception instanceof BadCredentialsException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(401), exception.getMessage());
             errorDetail.setProperty("description", "The username or password is incorrect");
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleDomainExceptions(DomainException exception) {
         ProblemDetail errorDetail = null;
 
-        log.warn("Domain exception: {}", exception.getMessage());
+//        log.warn("Domain exception: {}", exception.getMessage());
 
         if (errorDetail == null) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
@@ -93,7 +93,7 @@ public class GlobalExceptionHandler {
         ProblemDetail errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(500), exception.getMessage());
         errorDetail.setProperty("description", "Unknown internal server error.");
 
-        log.error("Unexpected exception: {}", exception.getMessage(), exception);
+//        log.error("Unexpected exception: {}", exception.getMessage(), exception);
 
         return errorDetail;
     }

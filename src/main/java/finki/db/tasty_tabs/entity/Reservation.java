@@ -12,7 +12,7 @@ import java.util.List;
  * Description: Represents reservations made by users.
  */
 @Entity
-@Table(name = "reservation")
+@Table(name = "reservations")
 @Data
 @NoArgsConstructor
 public class Reservation {
@@ -39,4 +39,60 @@ public class Reservation {
 
     @OneToMany(mappedBy = "reservation")
     private List<ReservationManagedFrontStaff> managedReservations;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getStayLength() {
+        return stayLength;
+    }
+
+    public void setStayLength(Integer stayLength) {
+        this.stayLength = stayLength;
+    }
+
+    public LocalDateTime getDatetime() {
+        return datetime;
+    }
+
+    public void setDatetime(LocalDateTime datetime) {
+        this.datetime = datetime;
+    }
+
+    public LocalDateTime getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public void setCreationTimestamp(LocalDateTime creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
+    }
+
+    public Integer getNumberOfPeople() {
+        return numberOfPeople;
+    }
+
+    public void setNumberOfPeople(Integer numberOfPeople) {
+        this.numberOfPeople = numberOfPeople;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<ReservationManagedFrontStaff> getManagedReservations() {
+        return managedReservations;
+    }
+
+    public void setManagedReservations(List<ReservationManagedFrontStaff> managedReservations) {
+        this.managedReservations = managedReservations;
+    }
 }

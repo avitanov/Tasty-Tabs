@@ -1,6 +1,7 @@
 package finki.db.tasty_tabs.entity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,7 +9,6 @@ import java.util.List;
 
 /**
  * Entity: Product
- * Description: Represents items that can be purchased in the system.
  */
 @Entity
 @Table(name = "products")
@@ -20,20 +20,21 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(nullable = false)
     private String name;
 
-    @Column(name = "price", nullable = false)
+    @Column(nullable = false)
     private Double price;
 
     @Column(name = "tax_class")
     private String taxClass;
 
-    @Column(name = "description", length = 1024)
+    @Column(length = 1024)
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    @JsonBackReference
     private Category category;
 
     @Column(name = "manage_inventory")

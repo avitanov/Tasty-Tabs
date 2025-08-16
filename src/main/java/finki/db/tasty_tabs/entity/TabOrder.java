@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
  * Description: Represents orders made at a specific table.
  */
 @Entity
-@Table(name = "tab_order")
+@Table(name = "tab_orders")
 @Data
 @NoArgsConstructor
 @PrimaryKeyJoinColumn(name = "order_id")
@@ -19,6 +19,22 @@ public class TabOrder extends Order {
     private RestaurantTable restaurantTable;
 
     @ManyToOne
-    @JoinColumn(name = "frontstaff_id", referencedColumnName = "employee_id", nullable = false)
+    @JoinColumn(name = "front_staff_id", referencedColumnName = "employee_id", nullable = false)
     private FrontStaff frontStaff;
+
+    public RestaurantTable getRestaurantTable() {
+        return restaurantTable;
+    }
+
+    public void setRestaurantTable(RestaurantTable restaurantTable) {
+        this.restaurantTable = restaurantTable;
+    }
+
+    public FrontStaff getFrontStaff() {
+        return frontStaff;
+    }
+
+    public void setFrontStaff(FrontStaff frontStaff) {
+        this.frontStaff = frontStaff;
+    }
 }

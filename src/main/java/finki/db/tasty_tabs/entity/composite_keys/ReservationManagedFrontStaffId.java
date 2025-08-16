@@ -1,11 +1,10 @@
 package finki.db.tasty_tabs.entity.composite_keys;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
-import java.util.Objects;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Objects;
 
 @Embeddable
 @Data
@@ -15,11 +14,11 @@ public class ReservationManagedFrontStaffId implements Serializable {
     @Column(name = "reservation_id")
     private Long reservationId;
 
-    @Column(name = "frontstaff_id")
+    @Column(name = "front_staff_id")
     private Long frontstaffId;
 
     @Column(name = "table_number")
-    private Integer tableNumber;
+    private Long tableNumber;
 
     @Override
     public boolean equals(Object o) {

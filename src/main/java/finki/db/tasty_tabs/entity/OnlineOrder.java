@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
  * Description: Represents orders made online by customers.
  */
 @Entity
-@Table(name = "online_order")
+@Table(name = "online_orders")
 @Data
 @NoArgsConstructor
 @PrimaryKeyJoinColumn(name = "order_id")
@@ -20,4 +20,20 @@ public class OnlineOrder extends Order {
 
     @Column(name = "delivery_address", nullable = false)
     private String deliveryAddress;
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public String getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(String deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
+    }
 }

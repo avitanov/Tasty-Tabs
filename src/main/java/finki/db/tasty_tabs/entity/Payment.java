@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * Description: Represents payments for orders.
  */
 @Entity
-@Table(name = "payment")
+@Table(name = "payments")
 @Data
 @NoArgsConstructor
 public class Payment {
@@ -23,7 +23,7 @@ public class Payment {
     @Column(name = "tip_amount")
     private Double tipAmount;
 
-    @Column(name = "timestamp", nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime timestamp;
 
     @Column(name = "payment_type", nullable = false)
@@ -35,4 +35,53 @@ public class Payment {
     @OneToOne
     @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false, unique = true)
     private Order order;
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Double getTipAmount() {
+        return tipAmount;
+    }
+
+    public void setTipAmount(Double tipAmount) {
+        this.tipAmount = tipAmount;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(String paymentType) {
+        this.paymentType = paymentType;
+    }
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 }

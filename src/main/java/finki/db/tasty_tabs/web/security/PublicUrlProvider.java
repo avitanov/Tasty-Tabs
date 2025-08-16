@@ -9,7 +9,9 @@ public class PublicUrlProvider {
     // This list should exactly match the permitAll() paths in your SecurityConfig
     private static final List<String> PUBLIC_PATHS = List.of(
             "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/v3/api-docs/**",
+            "/api/categories/**",
+            "/api/**"
     );
 
     public List<String> getPublicPaths() {

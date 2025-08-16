@@ -36,12 +36,12 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
             MDC.put("timeMs", String.valueOf(timeMs));
 
             // — log it —
-            log.info("Request: {} {} {} from {} – {}ms",
-                    resp.getStatus(),
-                    req.getMethod(),
-                    req.getRequestURI(),
-                    req.getRemoteAddr(),
-                    timeMs);
+//            log.info("Request: {} {} {} from {} – {}ms",
+//                    resp.getStatus(),
+//                    req.getMethod(),
+//                    req.getRequestURI(),
+//                    req.getRemoteAddr(),
+//                    timeMs);
 
             // — cleanup —
             MDC.clear();

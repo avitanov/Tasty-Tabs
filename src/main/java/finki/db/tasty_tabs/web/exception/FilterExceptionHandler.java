@@ -66,7 +66,7 @@ public class FilterExceptionHandler {
             detail.setProperty("description", "Unknown internal server error.");
         }
 
-        log.warn("An exception occurred: {}", exception.getMessage(), exception);
+//        log.warn("An exception occurred: {}", exception.getMessage(), exception);
 
         return detail;
     }

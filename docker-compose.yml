@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15.5
+    restart: always
+    environment:
+      POSTGRES_USER: springuser
+      POSTGRES_PASSWORD: springpassword
+      POSTGRES_DB: spring_boot_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./01.init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5435:5432"
+
+volumes:
+  db_data:
