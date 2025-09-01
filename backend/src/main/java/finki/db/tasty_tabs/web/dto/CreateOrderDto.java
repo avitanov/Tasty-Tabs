@@ -7,5 +7,5 @@ public record CreateOrderDto(
         String status,
         String type, // "online" or "tab"
         String deliveryAddress, // For OnlineOrder
-        Integer tableNumber // For TabOrder
+        Long tableNumber // For TabOrder
 ) { }

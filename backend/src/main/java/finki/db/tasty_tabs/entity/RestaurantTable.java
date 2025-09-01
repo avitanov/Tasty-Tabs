@@ -17,7 +17,7 @@ public class RestaurantTable {
 
     @Id
     @Column(name = "table_number")
-    private Integer tableNumber;
+    private Long tableNumber;
 
     @Column(name = "seat_capacity", nullable = false)
     private Integer seatCapacity;
@@ -28,7 +28,7 @@ public class RestaurantTable {
     @OneToMany(mappedBy = "restaurantTable")
     private List<ReservationManagedFrontStaff> managedReservations;
 
-    public RestaurantTable(Integer tableNumber, Integer seatCapacity) {
+    public RestaurantTable(Long tableNumber, Integer seatCapacity) {
         this.tableNumber=tableNumber;
         this.seatCapacity=seatCapacity;
     }

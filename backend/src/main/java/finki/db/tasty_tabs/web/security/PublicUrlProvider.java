@@ -10,8 +10,7 @@ public class PublicUrlProvider {
     private static final List<String> PUBLIC_PATHS = List.of(
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/api/categories/**",
-            "/api/**"
+            "/api/categories/**"
     );
 
     public List<String> getPublicPaths() {

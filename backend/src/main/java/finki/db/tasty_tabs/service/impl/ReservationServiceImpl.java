@@ -1,6 +1,7 @@
 package finki.db.tasty_tabs.service.impl;
 
 import finki.db.tasty_tabs.entity.*;
+import finki.db.tasty_tabs.entity.composite_keys.ReservationManagedFrontStaffId;
 import finki.db.tasty_tabs.entity.exceptions.ReservationNotFoundException;
 import finki.db.tasty_tabs.entity.exceptions.TableNotFoundException;
 import finki.db.tasty_tabs.repository.*;
@@ -89,7 +90,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public ReservationManagedFrontStaff acceptReservation(Long reservationId, String frontStaffEmail, Integer tableNumber) {
+    public ReservationManagedFrontStaff acceptReservation(Long reservationId, String frontStaffEmail, Long tableNumber) {
         User user = userRepository.findByEmail(frontStaffEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User with email " + frontStaffEmail + " not found."));
 
@@ -105,10 +106,17 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new TableNotFoundException(tableNumber));
 
         // 3. Create the new ReservationManagedFrontStaff entity
+        ReservationManagedFrontStaffId id = new ReservationManagedFrontStaffId(
+                reservation.getId(),
+                frontStaff.getId(),
+                table.getTableNumber().longValue()
+        );
+
         ReservationManagedFrontStaff managedReservation = new ReservationManagedFrontStaff();
         managedReservation.setReservation(reservation);
         managedReservation.setFrontStaff(frontStaff);
         managedReservation.setRestaurantTable(table);
+        managedReservation.setId(id);
 
         // 4. Save the new entity to the database
         return reservationManagedFrontStaffRepository.save(managedReservation);

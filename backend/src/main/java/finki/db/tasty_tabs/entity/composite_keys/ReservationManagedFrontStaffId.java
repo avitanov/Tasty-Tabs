@@ -2,6 +2,8 @@ package finki.db.tasty_tabs.entity.composite_keys;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.Objects;
@@ -9,6 +11,7 @@ import java.util.Objects;
 @Embeddable
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class ReservationManagedFrontStaffId implements Serializable {
 
     @Column(name = "reservation_id")

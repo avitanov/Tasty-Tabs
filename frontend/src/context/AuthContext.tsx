@@ -8,7 +8,7 @@ interface AuthContextType {
     token: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (credentials: AuthRequest) => Promise<void>;
+    login: (credentials: AuthRequest) => Promise<UserDto>; // Changed return type
     logout: () => void;
     hasRole: (roles: UserType[]) => boolean;
 }
@@ -36,12 +36,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     }, []);
 
-    const login = async (credentials: AuthRequest) => {
+    const login = async (credentials: AuthRequest): Promise<UserDto> => { // Changed return type
         const response = await authRepository.login(credentials);
         localStorage.setItem('authToken', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
         setToken(response.token);
         setUser(response.user);
+        return response.user; // Return the user object
     };
 
     const logout = () => {

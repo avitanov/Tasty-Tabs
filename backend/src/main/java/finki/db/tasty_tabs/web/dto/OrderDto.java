@@ -15,7 +15,7 @@ public record OrderDto(
         String type,
         String customerName,
         String deliveryAddress,
-        Integer tableNumber,
+        Long tableNumber,
         String frontStaffName,
         List<OrderItemDto> orderItems
 ) {

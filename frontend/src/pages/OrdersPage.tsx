@@ -80,7 +80,7 @@ export const OrdersPage = () => {
                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">{new Date(order.timestamp).toLocaleString()}</td>
                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm text-right">
                                     {/* Update this button to a Link */}
-                                    <Link to={`/orders/${order.id}`} className="text-indigo-600 hover:text-indigo-900 font-semibold">
+                                    <Link to={`/admin/orders/${order.id}`} className="text-indigo-600 hover:text-indigo-900 font-semibold">
                                         View Details
                                     </Link>
                                 </td>

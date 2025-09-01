@@ -179,3 +179,13 @@ export interface ManagerDto {
   id: number;
   email: string;
 }
+
+// src/types/api.ts (add this interface)
+
+export interface RegisterRequest {
+  email: string;
+  password?: string;
+  password_confirmation?: string;
+  first_name?: string;
+  last_name?: string;
+}

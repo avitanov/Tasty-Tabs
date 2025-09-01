@@ -25,6 +25,18 @@ export const orderRepository = {
     const { data } = await axiosClient.get("/orders/open");
     return data;
   },
+  createOnlineOrder: async (orderData: CreateOrderDto): Promise<OrderDto> => {
+    const { data } = await axiosClient.post("/orders/online", orderData);
+    return data;
+  },
+  getOnlineOrdersByCustomer: async (
+    customerId: number,
+  ): Promise<OrderDto[]> => {
+    const { data } = await axiosClient.get(
+      `/orders/online/customer/${customerId}`,
+    );
+    return data;
+  },
   // New method to get a single order
   getOrderById: async (orderId: number): Promise<OrderDto> => {
     const { data } = await axiosClient.get(`/orders/${orderId}`);

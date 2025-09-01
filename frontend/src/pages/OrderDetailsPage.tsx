@@ -52,7 +52,7 @@ export const OrderDetailsPage = () => {
 
     return (
         <div className="p-6">
-            <Link to="/orders" className="text-blue-600 hover:underline mb-4 block">&larr; Back to All Orders</Link>
+            <Link to="/admin/orders" className="text-blue-600 hover:underline mb-4 block">&larr; Back to All Orders</Link>
 
             {orderId && <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} orderId={parseInt(orderId, 10)} onSuccess={handleModalSuccess} />}
 

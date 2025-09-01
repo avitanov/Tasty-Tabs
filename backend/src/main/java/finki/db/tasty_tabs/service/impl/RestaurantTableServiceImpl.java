@@ -8,7 +8,6 @@ import finki.db.tasty_tabs.service.RestaurantTableService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RestaurantTableServiceImpl implements RestaurantTableService {
@@ -20,7 +19,7 @@ public class RestaurantTableServiceImpl implements RestaurantTableService {
     }
 
     @Override
-    public RestaurantTable findById(Integer id) {
+    public RestaurantTable findById(Long id) {
         return tableRepository.findById(id).orElseThrow(()->new TableNotFoundException(id));
     }
 
@@ -30,7 +29,7 @@ public class RestaurantTableServiceImpl implements RestaurantTableService {
     }
 
     @Override
-    public RestaurantTable updateTable(Integer id, RestaurantTable restaurantTable) {
+    public RestaurantTable updateTable(Long id, RestaurantTable restaurantTable) {
         if(tableRepository.findById(restaurantTable.getTableNumber()).isPresent() && id!=restaurantTable.getTableNumber()){
             throw new TableNumberAlreadyExistsException(restaurantTable.getTableNumber());
         }
@@ -46,7 +45,7 @@ public class RestaurantTableServiceImpl implements RestaurantTableService {
     }
 
     @Override
-    public void deleteTable(Integer id) {
+    public void deleteTable(Long id) {
         tableRepository.deleteById(id);
     }
 

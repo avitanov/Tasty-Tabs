@@ -4,13 +4,13 @@ import { useAuth } from '../hooks/useAuth';
 import { ROLE_PERMISSIONS } from '../utils/roles';
 
 const navLinks = [
-    { path: '/orders', label: 'Orders' },
-    { path: '/reservations', label: 'Reservations' },
-    { path: '/categories', label: 'Categories' }, // New
-    { path: '/products', label: 'Products' }, // New
-    { path: '/shifts', label: 'Shifts' },
-    { path: '/employees', label: 'Employees' },
-    { path: '/assignments', label: 'Assignments' },
+    { path: '/admin/orders', label: 'Orders' },
+    { path: '/admin/reservations', label: 'Reservations' },
+    { path: '/admin/categories', label: 'Categories' }, // New
+    { path: '/admin/products', label: 'Products' }, // New
+    { path: '/admin/shifts', label: 'Shifts' },
+    { path: '/admin/employees', label: 'Employees' },
+    { path: '/admin/assignments', label: 'Assignments' },
 ];
 
 

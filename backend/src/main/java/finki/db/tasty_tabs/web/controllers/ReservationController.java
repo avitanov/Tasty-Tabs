@@ -76,7 +76,7 @@ public class ReservationController {
     @PostMapping("/accept/{reservationId}/table/{tableNumber}")
     public ResponseEntity<ReservationDto> acceptReservation(
             @PathVariable Long reservationId,
-            @PathVariable Integer tableNumber,
+            @PathVariable Long tableNumber,
             Authentication authentication
     ) {
         String frontStaffEmail = authentication.getName();

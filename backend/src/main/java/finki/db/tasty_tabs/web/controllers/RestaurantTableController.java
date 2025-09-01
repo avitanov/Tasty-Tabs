@@ -35,7 +35,7 @@ public class RestaurantTableController {
 
     @Operation(summary = "Get a table by table number", description = "Finds a table by its table number.")
     @GetMapping("/{tableNumber}")
-    public ResponseEntity<RestaurantTableDto> findById(@PathVariable Integer tableNumber) {
+    public ResponseEntity<RestaurantTableDto> findById(@PathVariable Long tableNumber) {
         return ResponseEntity.ok(RestaurantTableDto.from(restaurantTableService.findById(tableNumber)));
                 }
 
@@ -49,7 +49,7 @@ public class RestaurantTableController {
     @Operation(summary = "Update an existing table", description = "Updates a restaurant table by its table number.")
     @PutMapping("/edit/{tableNumber}")
     public ResponseEntity<RestaurantTableDto> update(
-            @PathVariable Integer tableNumber,
+            @PathVariable Long tableNumber,
             @RequestBody CreateRestaurantTableDto dto
     ) {
         RestaurantTable updatedTable = restaurantTableService.updateTable(tableNumber, dto.toRestaurantTable());
@@ -58,7 +58,7 @@ public class RestaurantTableController {
 
     @Operation(summary = "Delete a table", description = "Deletes a restaurant table by its table number.")
     @DeleteMapping("/delete/{tableNumber}")
-    public ResponseEntity<Void> deleteById(@PathVariable Integer tableNumber) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long tableNumber) {
         restaurantTableService.deleteTable(tableNumber);
         return ResponseEntity.noContent().build();
     }

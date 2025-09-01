@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RestaurantTableRepository extends JpaRepository<RestaurantTable, Integer> {
+public interface RestaurantTableRepository extends JpaRepository<RestaurantTable, Long> {
 
     List<RestaurantTable> findAllBySeatCapacity(Integer seatCapacity);
 }

@@ -27,4 +27,13 @@ export const reservationRepository = {
     );
     return data;
   },
+
+  getMyReservations: async (): Promise<ReservationDto[]> => {
+    const { data } = await axiosClient.get("/reservations/myReservations");
+    return data;
+  },
+  // New method to delete/cancel a reservation
+  deleteReservation: async (reservationId: number): Promise<void> => {
+    await axiosClient.delete(`/reservations/delete/${reservationId}`);
+  },
 };
