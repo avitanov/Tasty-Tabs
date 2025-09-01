@@ -8,6 +8,7 @@ import finki.db.tasty_tabs.entity.exceptions.PaymentNotFoundException;
 import finki.db.tasty_tabs.repository.OrderRepository;
 import finki.db.tasty_tabs.repository.PaymentRepository;
 import finki.db.tasty_tabs.service.PaymentService;
+import finki.db.tasty_tabs.service.viewRefreshers.MvRefresher;
 import finki.db.tasty_tabs.web.dto.CreatePaymentDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+    private final MvRefresher mvRefresher;
+
 
     @Override
     @Transactional
@@ -33,10 +36,15 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setAmount(dto.amount());
         payment.setTipAmount(dto.tipAmount());
         payment.setPaymentType(dto.paymentType());
-        payment.setTimestamp(LocalDateTime.now());
+        payment.setTimestamp(LocalDateTime.now()); // ensure mapped to created_at column
         payment.setOrder(order);
 
-        return paymentRepository.save(payment);
+        Payment saved = paymentRepository.save(payment);
+
+        // Schedule MV refresh after the transaction commits
+        mvRefresher.refreshPaymentsMvAfterCommit();
+
+        return saved;
     }
 
     @Override
