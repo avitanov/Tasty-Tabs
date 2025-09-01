@@ -1,3 +1,6 @@
+BEGIN;
+
+
 CREATE TABLE IF NOT EXISTS users (
                                      id BIGSERIAL PRIMARY KEY,
                                      email VARCHAR(255) NOT NULL UNIQUE,
@@ -159,6 +162,177 @@ CREATE TABLE IF NOT EXISTS payments (
     FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
+-- ASSERTIONS
+
+ALTER TABLE employees
+    ADD CONSTRAINT employees_net_salary_nonneg   CHECK (net_salary   IS NULL OR net_salary   >= 0),
+  ADD CONSTRAINT employees_gross_salary_nonneg CHECK (gross_salary IS NULL OR gross_salary >= 0);
+
+ALTER TABLE inventories
+    ADD CONSTRAINT inventories_qty_nonneg CHECK (quantity >= 0),
+  ADD CONSTRAINT inventories_restock_nonneg CHECK (restock_level IS NULL OR restock_level >= 0);
+
+ALTER TABLE products
+    ADD CONSTRAINT products_price_nonneg CHECK (price >= 0);
+
+ALTER TABLE order_items
+    ADD CONSTRAINT order_items_qty_pos CHECK (quantity > 0),
+  ADD CONSTRAINT order_items_price_nonneg CHECK (price >= 0);
+
+ALTER TABLE payments
+    ADD CONSTRAINT payments_amount_nonneg CHECK (amount >= 0),
+  ADD CONSTRAINT payments_tip_nonneg    CHECK (tip_amount >= 0);
+
+ALTER TABLE tables
+    ADD CONSTRAINT tables_capacity_pos CHECK (seat_capacity > 0);
+
+ALTER TABLE reservations
+    ADD CONSTRAINT reservations_people_pos CHECK (number_of_people > 0);
+
+ALTER TABLE front_staff
+    ADD CONSTRAINT front_staff_tip_pct CHECK (tip_percent IS NULL OR (tip_percent >= 0 AND tip_percent <= 100));
+
+
+CREATE OR REPLACE FUNCTION enforce_no_double_booking()
+RETURNS trigger AS $$
+DECLARE
+new_span tsrange;
+  conflict_exists boolean;
+BEGIN
+SELECT tsrange(
+               r.datetime,
+               r.datetime + (COALESCE(r.stay_length, 2) * INTERVAL '1 hour'),
+               '[)'
+           )
+INTO new_span
+FROM reservations r
+WHERE r.id = NEW.reservation_id;
+
+IF new_span IS NULL THEN
+    RAISE EXCEPTION 'Reservation % not found or invalid', NEW.reservation_id;
+END IF;
+
+  -- Check for overlap on same table_number (exclude self on UPDATE)
+SELECT EXISTS (
+    SELECT 1
+    FROM frontstaff_managed_reservations fmr
+             JOIN reservations r2 ON r2.id = fmr.reservation_id
+    WHERE fmr.table_number = NEW.table_number
+      AND (NEW.id IS NULL OR fmr.id <> NEW.id)
+      AND tsrange(
+            r2.datetime,
+            r2.datetime + (COALESCE(r2.stay_length, 2) * INTERVAL '1 hour'),
+            '[)'
+        ) && new_span
+) INTO conflict_exists;
+
+IF conflict_exists THEN
+    RAISE EXCEPTION 'Double booking prevented: table % has overlapping reservations', NEW.table_number;
+END IF;
+
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_no_double_booking_ins ON frontstaff_managed_reservations;
+CREATE CONSTRAINT TRIGGER trg_no_double_booking_ins
+AFTER INSERT ON frontstaff_managed_reservations
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION enforce_no_double_booking();
+
+DROP TRIGGER IF EXISTS trg_no_double_booking_upd ON frontstaff_managed_reservations;
+CREATE CONSTRAINT TRIGGER trg_no_double_booking_upd
+AFTER UPDATE ON frontstaff_managed_reservations
+                 DEFERRABLE INITIALLY DEFERRED
+                 FOR EACH ROW EXECUTE FUNCTION enforce_no_double_booking();
+
+CREATE INDEX IF NOT EXISTS fmr_table_idx ON frontstaff_managed_reservations (table_number);
+CREATE INDEX IF NOT EXISTS reservations_span_expr_gist
+    ON reservations USING gist (
+    tsrange(
+    datetime,
+    datetime + (COALESCE(stay_length, 2) * INTERVAL '1 hour'),
+    '[)'
+    )
+    );
+CREATE INDEX IF NOT EXISTS idx_payments_order      ON payments(order_id);
+CREATE INDEX IF NOT EXISTS idx_payments_created_at ON payments(created_at);
+
+
+CREATE OR REPLACE FUNCTION fmr_capacity_guard() RETURNS trigger AS $$
+DECLARE
+cap int;
+  party bigint;
+BEGIN
+SELECT seat_capacity INTO cap FROM tables WHERE table_number = NEW.table_number;
+SELECT number_of_people INTO party FROM reservations WHERE id = NEW.reservation_id;
+
+IF cap IS NULL OR party IS NULL THEN
+    RAISE EXCEPTION 'Invalid reservation % or table %', NEW.reservation_id, NEW.table_number;
+END IF;
+
+  IF party > cap THEN
+    RAISE EXCEPTION 'Party size % exceeds capacity % for table %',
+      party, cap, NEW.table_number;
+END IF;
+
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_fmr_capacity_ins ON frontstaff_managed_reservations;
+CREATE TRIGGER trg_fmr_capacity_ins
+    BEFORE INSERT ON frontstaff_managed_reservations
+    FOR EACH ROW EXECUTE FUNCTION fmr_capacity_guard();
+
+DROP TRIGGER IF EXISTS trg_fmr_capacity_upd ON frontstaff_managed_reservations;
+CREATE TRIGGER trg_fmr_capacity_upd
+    BEFORE UPDATE ON frontstaff_managed_reservations
+    FOR EACH ROW EXECUTE FUNCTION fmr_capacity_guard();
+
+
+CREATE OR REPLACE FUNCTION payments_mark_order_paid() RETURNS trigger AS $$
+BEGIN
+UPDATE orders
+SET status = 'PAID'
+WHERE id = NEW.order_id;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_payments_mark_order_paid ON payments;
+CREATE TRIGGER trg_payments_mark_order_paid
+    AFTER INSERT ON payments
+    FOR EACH ROW EXECUTE FUNCTION payments_mark_order_paid();
+
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS mv_payments_daily_channel AS
+WITH orders_channel AS (
+  SELECT
+    o.id AS order_id,
+    CASE
+      WHEN EXISTS (SELECT 1 FROM tab_orders t WHERE t.order_id = o.id) THEN 'TAB'
+      WHEN EXISTS (SELECT 1 FROM online_orders oo WHERE oo.order_id = o.id) THEN 'ONLINE'
+      ELSE 'UNKNOWN'
+    END AS channel
+  FROM orders o
+)
+SELECT
+    (date_trunc('day', p.created_at))::date AS day,
+  oc.channel,
+  COUNT(DISTINCT p.order_id)            AS paid_orders_cnt,
+  SUM(p.amount)::numeric(14,2)          AS revenue,
+  SUM(p.tip_amount)::numeric(14,2)      AS tip_total
+FROM payments p
+    JOIN orders_channel oc ON oc.order_id = p.order_id
+GROUP BY (date_trunc('day', p.created_at))::date, oc.channel;
+
+CREATE UNIQUE INDEX IF NOT EXISTS ux_mv_payments_daily_channel
+    ON mv_payments_daily_channel (day, channel);
+
+REFRESH MATERIALIZED VIEW mv_payments_daily_channel;
+
+
 -- DML
 INSERT INTO users(id, email, password, phone_number, street, city)
 VALUES
@@ -261,3 +435,5 @@ VALUES
 INSERT INTO payments(id, order_id, amount, payment_type, tip_amount)
 VALUES
     (1, 3, 700, 'cash', 10);
+
+COMMIT;
