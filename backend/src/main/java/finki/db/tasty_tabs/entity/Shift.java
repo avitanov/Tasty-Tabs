@@ -1,0 +1,102 @@
+package finki.db.tasty_tabs.entity;
+import jakarta.persistence.*;
+import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Entity: Shift
+ * Description: Represents a work shift in the system.
+ */
+@Entity
+@Table(name = "shifts")
+@Data
+@NoArgsConstructor
+public class Shift {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
+
+    @Column(name = "start_time", nullable = false)
+    private LocalDateTime start;
+
+    @Column(name = "end_time", nullable = false)
+    private LocalDateTime end;
+
+    @ManyToOne
+    @JoinColumn(name = "manager_id", referencedColumnName = "employee_id", nullable = false)
+    private Manager manager;
+
+    @OneToMany(mappedBy = "shift")
+    private List<Assignment> assignments = new ArrayList<>();
+
+    public Shift(LocalDate date, LocalDateTime start, LocalDateTime end, Manager manager) {
+        this.date = date;
+        this.start = start;
+        this.end = end;
+        this.manager = manager;
+    }
+
+    public Shift(LocalDate date, LocalDateTime start, LocalDateTime end) {
+        this.date = date;
+        this.start = start;
+        this.end = end;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalDateTime getStart() {
+        return start;
+    }
+
+    public void setStart(LocalDateTime start) {
+        this.start = start;
+    }
+
+    public LocalDateTime getEnd() {
+        return end;
+    }
+
+    public void setEnd(LocalDateTime end) {
+        this.end = end;
+    }
+
+    public Manager getManager() {
+        return manager;
+    }
+
+    public void setManager(Manager manager) {
+        this.manager = manager;
+    }
+
+    public List<Assignment> getAssignments() {
+        return assignments;
+    }
+
+    public void setAssignments(List<Assignment> assignments) {
+        this.assignments = assignments;
+    }
+}
