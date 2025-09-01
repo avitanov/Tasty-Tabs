@@ -27,14 +27,16 @@ public class Employee extends User {
     private List<Assignment> assignments;
 
     public Employee() {
+        super();
     }
     public Employee(Double netSalary, Double grossSalary) {
+        super();
         this.netSalary = netSalary;
         this.grossSalary = grossSalary;
     }
 
-    public Employee(Long id, String email, String street, String city, String phoneNumber, Double netSalary, Double grossSalary, List<Assignment> assignments) {
-        super(id, email, street, city, phoneNumber);
+    public Employee(String email, String street, String city, String phoneNumber, Double netSalary, Double grossSalary, List<Assignment> assignments) {
+        super(email, street, city, phoneNumber);
         this.netSalary = netSalary;
         this.grossSalary = grossSalary;
         this.assignments = assignments;
@@ -62,5 +64,9 @@ public class Employee extends User {
 
     public void setGrossSalary(Double grossSalary) {
         this.grossSalary = grossSalary;
+    }
+
+    public UserType getUserType(){
+        return UserType.EMPLOYEE;
     }
 }

@@ -11,7 +11,8 @@ public record AssignmentDto(
         LocalDateTime clockInTime,
         LocalDateTime clockOutTime,
         ManagerDto manager,
-        EmployeeDto employee
+        EmployeeDto employee,
+        ShiftDto shift
 ) {
     public static AssignmentDto fromAssignment(Assignment assignment) {
         return new AssignmentDto(
@@ -19,7 +20,8 @@ public record AssignmentDto(
                 assignment.getClockInTime(),
                 assignment.getClockOutTime(),
                 ManagerDto.from(assignment.getManager()),
-                EmployeeDto.from(assignment.getEmployee())
+                EmployeeDto.from(assignment.getEmployee()),
+                ShiftDto.fromShiftBasic(assignment.getShift())
         );
     }
 }

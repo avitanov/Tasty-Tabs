@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,7 +37,7 @@ public class Shift {
     private Manager manager;
 
     @OneToMany(mappedBy = "shift")
-    private List<Assignment> assignments;
+    private List<Assignment> assignments = new ArrayList<>();
 
     public Shift(LocalDate date, LocalDateTime start, LocalDateTime end, Manager manager) {
         this.date = date;

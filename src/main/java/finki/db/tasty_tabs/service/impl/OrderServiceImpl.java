@@ -8,6 +8,7 @@ import finki.db.tasty_tabs.web.dto.CreateOrderDto;
 import finki.db.tasty_tabs.web.dto.CreateOrderItemDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -195,6 +197,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public TabOrder createTabOrder(CreateOrderDto dto, String userEmail) {
+        log.debug("User {} creating a tab order for table {}", userEmail, dto.tableNumber());
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User with email " + userEmail + " not found."));
         if (!(user instanceof FrontStaff)) {
@@ -208,6 +211,7 @@ public class OrderServiceImpl implements OrderService {
         tabOrder.setTimestamp(LocalDateTime.now());
         tabOrder.setStatus(dto.status());
         if (dto.orderItems() != null && !dto.orderItems().isEmpty()) {
+            log.debug("OrderItems is not empty, processing items...");
             List<OrderItem> orderItems = dto.orderItems().stream().map(itemDto -> {
                 OrderItem item = new OrderItem();
                 item.setOrder(tabOrder);
@@ -271,10 +275,10 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> findOpenOrders() {
 
         // Query the OnlineOrderRepository for open orders
-        List<OnlineOrder> onlineOrders = onlineOrderRepository.findAllByStatus("OPEN");
+        List<OnlineOrder> onlineOrders = onlineOrderRepository.findAllByStatusIn(List.of("PENDING", "CONFIRMED"));
 
         // Query the TabOrderRepository for open orders
-        List<TabOrder> tabOrders = tabOrderRepository.findAllByStatus("OPEN");
+        List<TabOrder> tabOrders = tabOrderRepository.findAllByStatusIn(List.of("PENDING", "CONFIRMED"));
 
         // Combine the lists into a single List<Order>
         List<Order> combinedOrders = new java.util.ArrayList<>();
@@ -288,7 +292,7 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> findClosedOrders() {
 
         // Query the OnlineOrderRepository for open orders
-        List<OnlineOrder> onlineOrders = onlineOrderRepository.findAllByStatus("CLOSED");
+        List<OnlineOrder> onlineOrders = onlineOrderRepository.findAllByStatusIn(List.of("CLOSED"));
 
         // Query the TabOrderRepository for open orders
         List<TabOrder> tabOrders = tabOrderRepository.findAllByStatus("CLOSED");
@@ -298,5 +302,6 @@ public class OrderServiceImpl implements OrderService {
         combinedOrders.addAll(onlineOrders);
         combinedOrders.addAll(tabOrders);
 
-        return combinedOrders;    }
+        return combinedOrders;
+    }
 }

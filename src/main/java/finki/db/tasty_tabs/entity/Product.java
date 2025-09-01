@@ -29,8 +29,9 @@ public class Product {
     @Column(name = "tax_class")
     private String taxClass;
 
-    @Column(length = 1024)
-    private String description;
+//    @Column(length = 1024)
+    @Transient
+    private String description = "";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)

@@ -11,10 +11,14 @@ import lombok.NoArgsConstructor;
 @Table(name = "back_staff")
 @Data
 @NoArgsConstructor
-@PrimaryKeyJoinColumn(name = "employee_id")
+@PrimaryKeyJoinColumn(name = "employee_id", referencedColumnName = "user_id")
 public class BackStaff extends Employee {
 
     @ManyToOne
     @JoinColumn(name = "staff_role_id", referencedColumnName = "id")
     private StaffRole staffRole;
+
+    public UserType getUserType() {
+        return UserType.BACK_STAFF;
+    }
 }

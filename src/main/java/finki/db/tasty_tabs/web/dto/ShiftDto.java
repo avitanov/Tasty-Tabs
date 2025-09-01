@@ -26,4 +26,15 @@ public record ShiftDto(
                         .toList()
         );
     }
+    public static ShiftDto fromShiftBasic(Shift shift) {
+        return new ShiftDto(
+                shift.getId(),
+                shift.getDate(),
+                shift.getStart(),
+                shift.getEnd(),
+                ManagerDto.from(shift.getManager()),
+                null
+        );
+    }
+
 }

@@ -1,7 +1,7 @@
 package finki.db.tasty_tabs.service;
 
 import finki.db.tasty_tabs.web.dto.AuthDto;
-import finki.db.tasty_tabs.web.dto.RegisterRequest;
+import finki.db.tasty_tabs.web.dto.request.RegisterRequest;
 import finki.db.tasty_tabs.web.dto.UserDto;
 
 public interface AuthService {

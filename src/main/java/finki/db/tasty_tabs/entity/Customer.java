@@ -20,4 +20,8 @@ public class Customer extends User {
     // Relationship for online orders placed by this customer
     @OneToMany(mappedBy = "customer")
     private List<OnlineOrder> onlineOrders;
+
+    public UserType getUserType() {
+        return UserType.CUSTOMER;
+    }
 }

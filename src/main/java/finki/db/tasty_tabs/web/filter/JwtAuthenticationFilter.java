@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         // This method tells Spring to SKIP this filter entirely if the path matches.
         return publicUrlProvider.getPublicPaths().stream()
-                .anyMatch(p -> pathMatcher.match(p, request.getServletPath()));
+                .anyMatch(p -> (pathMatcher.match(p, request.getServletPath()) && "GET".equalsIgnoreCase(request.getMethod())) || ("/api/auth/login".equals(request.getServletPath()) && "POST".equalsIgnoreCase(request.getMethod())) || ("/api/auth/register".equals(request.getServletPath()) && "POST".equalsIgnoreCase(request.getMethod())));
     }
 
     @Override
@@ -54,19 +54,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = resolveToken(request);
             Claims claims = jwtProvider.validateToken(token);
             if (claims != null) {
-                String userId = claims.getSubject();
-                UserDetails userDetails = userDetailsService.loadUserByUserId(Long.parseLong(userId));
+                String email = claims.getSubject();
+                UserDetails userDetails = userDetailsService.loadUserByUserId(email);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-//                log.debug("JWT token validated");
+                log.debug("JWT token validated");
             }
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
-//            log.debug("JWT token expired: {}", e.getMessage());
+            log.debug("JWT token expired: {}", e.getMessage());
             FilterExceptionHandler.handleException(request, response, e);
         } catch (AuthorizationDeniedException e) {
 //            log.debug("Authorization denied: {}", e.getMessage());

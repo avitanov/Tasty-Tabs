@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "front_staff")
 @Data
 @NoArgsConstructor
-@PrimaryKeyJoinColumn(name = "employee_id")
+@PrimaryKeyJoinColumn(name = "employee_id", referencedColumnName = "user_id")
 public class FrontStaff extends Employee {
 
     @Column(name = "tip_percent")
@@ -61,5 +61,9 @@ public class FrontStaff extends Employee {
 
     public void setManagedReservations(List<ReservationManagedFrontStaff> managedReservations) {
         this.managedReservations = managedReservations;
+    }
+
+    public UserType getUserType() {
+        return UserType.FRONT_STAFF;
     }
 }

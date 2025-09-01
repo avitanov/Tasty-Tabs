@@ -29,10 +29,10 @@ public class UserDetailsServiceImpl implements CustomUserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUserId(Long userId) {
-        log.debug("Loading user by ID: {}", userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
+    public UserDetails loadUserByUserId(String email) {
+        log.debug("Loading user by ID: {}", email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + email));
 
         return getUserDetails(user);
     }

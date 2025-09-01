@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -60,8 +61,8 @@ public class OrderController {
 
     @Operation(summary = "Update the status of an order")
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Void> updateOrderStatus(@PathVariable Long id, @RequestBody String status) {
-        orderService.updateOrderStatus(id, status);
+    public ResponseEntity<Void> updateOrderStatus(@PathVariable Long id, @RequestBody Map<String, String> status) {
+        orderService.updateOrderStatus(id, status.get("status"));
         return ResponseEntity.noContent().build();
     }
 

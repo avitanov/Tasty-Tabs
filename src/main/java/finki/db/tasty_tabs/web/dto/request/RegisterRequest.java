@@ -1,4 +1,4 @@
-package finki.db.tasty_tabs.web.dto;
+package finki.db.tasty_tabs.web.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

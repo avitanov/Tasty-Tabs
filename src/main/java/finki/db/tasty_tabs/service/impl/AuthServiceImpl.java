@@ -1,11 +1,12 @@
 package finki.db.tasty_tabs.service.impl;
 
+import finki.db.tasty_tabs.entity.Customer;
 import finki.db.tasty_tabs.entity.User;
 import finki.db.tasty_tabs.repository.UserRepository;
 import finki.db.tasty_tabs.service.AuthService;
 import finki.db.tasty_tabs.utils.JwtProvider;
 import finki.db.tasty_tabs.web.dto.AuthDto;
-import finki.db.tasty_tabs.web.dto.RegisterRequest;
+import finki.db.tasty_tabs.web.dto.request.RegisterRequest;
 import finki.db.tasty_tabs.web.dto.UserDto;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,8 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -52,7 +51,19 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthDto register(RegisterRequest request) {
-        throw new RuntimeException("Not implemented");
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+        if (user != null){
+            throw new RuntimeException("User with this email already exists");
+        }
+
+        User newUser = new Customer();
+        newUser.setEmail(request.getEmail());
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(newUser);
+
+        String token = jwtProvider.generateToken(request.getEmail());
+
+        return new AuthDto(token, UserDto.from(newUser));
     }
 
     @Override

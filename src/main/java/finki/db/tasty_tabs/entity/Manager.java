@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "managers")
 @Data
 @NoArgsConstructor
-@PrimaryKeyJoinColumn(name = "employee_id")
+@PrimaryKeyJoinColumn(name = "employee_id", referencedColumnName = "user_id")
 public class Manager extends Employee {
 
     // Relationship for shifts created by this manager
@@ -25,4 +25,8 @@ public class Manager extends Employee {
     @OneToMany(mappedBy = "manager")
     private List<Assignment> createdAssignments;
 
+
+    public UserType getUserType() {
+        return UserType.MANAGER;
+    }
 }
