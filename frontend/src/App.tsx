@@ -27,6 +27,7 @@ import { RegisterPage } from './pages/public/RegisterPage';
 import { MenuPage } from './pages/public/MenuPage';
 import { MyReservationsPage } from './pages/public/MyReservationsPage';
 import { MyOrdersPage } from './pages/public/MyOrdersPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
 
 // Admin Layout
 const AdminLayout = () => (
@@ -67,6 +68,10 @@ function App() {
                         <Route path="" element={<ProtectedRoute allowedRoles={[ROLES.MANAGER, ROLES.FRONT_STAFF, ROLES.BACK_STAFF]} />}>
                             <Route index element={<DashboardPage />} />
                         </Route>
+                        <Route path="analytics" element={<ProtectedRoute allowedRoles={[ROLES.MANAGER]} />}>
+                            <Route index element={<AnalyticsPage />} />
+                        </Route>
+
                         <Route path="orders" element={<ProtectedRoute allowedRoles={[ROLES.MANAGER, ROLES.FRONT_STAFF, ROLES.BACK_STAFF]} />}>
                             <Route index element={<OrdersPage />} />
                             <Route path=":orderId" element={<OrderDetailsPage />} />

@@ -189,3 +189,79 @@ export interface RegisterRequest {
   first_name?: string;
   last_name?: string;
 }
+
+export interface DailyOpsDto {
+  operation_date: string;
+  total_reservations: number;
+  total_orders: number;
+  unique_customers: number;
+  active_employees: number;
+  daily_revenue: number;
+}
+
+export interface TopProductDto {
+  product_name: string;
+  category_name: string;
+  total_quantity_sold: number;
+  total_revenue: number;
+}
+
+export interface ServerPerformanceDto {
+  server_email: string;
+  total_assignments: number;
+  orders_processed: number;
+  total_revenue_generated: number;
+  avg_order_value: number;
+}
+
+// src/types/api.ts (add these interfaces)
+
+export interface RevenueSplitDto {
+  order_type: string;
+  total_revenue: number;
+}
+
+export interface MonthlyRevenueVsLaborDto {
+  period: string; // e.g., "2025-08"
+  total_revenue: number;
+  total_labor_cost: number;
+}
+
+export interface ManagerShiftAboveAvgDto {
+  manager_email: string;
+  shift_date: string;
+  shift_revenue: number;
+  avg_revenue_per_shift: number;
+}
+
+export interface CreatePaymentDto {
+  tip_amount: number;
+  payment_type: string; // "CASH" or "CARD"
+  amount: number;
+  order_id: number;
+}
+
+export interface PaymentsDailyChannelDto {
+  day: string; // LocalDate
+  channel: string;
+  paid_orders_cnt: number;
+  revenue: number;
+  tip_total: number;
+}
+
+export interface ChannelTableDto {
+  channel: string;
+  data: PaymentsDailyChannelDto[];
+  total_paid_orders: number;
+  total_revenue: number;
+  total_tips: number;
+}
+
+export interface AnalyticsByChannelResponse {
+  from: string; // LocalDate
+  to: string; // LocalDate
+  channels: ChannelTableDto[];
+  grand_total_paid_orders: number;
+  grand_total_revenue: number;
+  grand_total_tips: number;
+}

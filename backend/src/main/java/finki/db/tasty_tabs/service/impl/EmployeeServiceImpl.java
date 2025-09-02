@@ -48,7 +48,7 @@ class EmployeeServiceImpl implements EmployeeService { // New Service Implementa
 
     @Override
     public AssignmentDto getNextShiftForEmployee(Long employeeId) {
-        Assignment assignment = assignmentRepository.findFirstByEmployee_IdOrderByShiftStartAsc(employeeId).orElse(null);
+        Assignment assignment = assignmentRepository.findFirstByEmployee_IdAndClockOutTimeNullOrderByShiftStartAsc(employeeId).orElse(null);
 
         if (assignment == null) {
             throw new EntityNotFoundException("No upcoming shifts found for employee with id: " + employeeId);

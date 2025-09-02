@@ -29,8 +29,7 @@ public class Product {
     @Column(name = "tax_class")
     private String taxClass;
 
-//    @Column(length = 1024)
-    @Transient
+    @Column(length = 1024)
     private String description = "";
 
     @ManyToOne(fetch = FetchType.LAZY)

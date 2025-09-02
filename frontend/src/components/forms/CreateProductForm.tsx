@@ -20,6 +20,7 @@ const createProductSchema = z.object({
     ),
     tax_class: z.string().default('A'),
     manage_inventory: z.boolean().default(false),
+    description: z.string().default(''),
 });
 
 type CreateProductFormData = z.infer<typeof createProductSchema>;
@@ -80,6 +81,12 @@ export const CreateProductForm = ({ onSuccess }: CreateProductFormProps) => {
                     <option value="D">D - 18%</option>
                 </select>
                 {errors.category_id && <p className="text-red-500 text-xs">{errors.category_id.message}</p>}
+            </div>
+
+            <div>
+                <label>Product Description</label>
+                <textarea {...register('description')} className="w-full p-2 border rounded" />
+                {errors.description && <p className="text-red-500 text-xs">{errors.description.message}</p>}
             </div>
 
             <div>

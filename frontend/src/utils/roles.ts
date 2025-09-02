@@ -20,6 +20,7 @@ export const ROLE_PERMISSIONS: Record<UserType, string[]> = {
     "/admin/shifts",
     "/admin/employees",
     "/admin/assignments",
+    "/admin/analytics",
   ],
   [UserType.FRONT_STAFF]: ["/admin/orders", "/admin/reservations"],
   [UserType.BACK_STAFF]: ["/admin/orders"],

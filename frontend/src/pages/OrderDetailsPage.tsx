@@ -5,12 +5,14 @@ import type { OrderDto } from '../types/api';
 import { orderRepository } from '../api/orderRepository';
 import { AddItemModal } from '../components/AddItemModal';
 import { UpdateOrderStatusActions } from '../components/order/UpdateOrderStatusActions';
+import { PaymentModal } from '../components/modals/PaymentModal';
 
 export const OrderDetailsPage = () => {
     const { orderId } = useParams<{ orderId: string }>();
     const [order, setOrder] = useState<OrderDto | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false); // New state for payment modal
 
     const fetchOrderDetails = useCallback(() => {
         if (orderId) {
@@ -26,13 +28,9 @@ export const OrderDetailsPage = () => {
         fetchOrderDetails();
     }, [orderId, fetchOrderDetails]);
 
-    const handleModalSuccess = () => {
-        setIsModalOpen(false);
-        fetchOrderDetails(); // Refresh details after adding items
-    };
-
     const handleSuccess = () => {
-        setIsModalOpen(false);
+        setIsAddItemModalOpen(false);
+        setIsPaymentModalOpen(false); // Close payment modal on success too
         fetchOrderDetails(); // Generic success handler for all updates
     };
 
@@ -40,12 +38,14 @@ export const OrderDetailsPage = () => {
     if (!order) return <div>Order not found.</div>;
 
     const totalPrice = order.order_items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const isPayable = order.status !== 'COMPLETED' && order.status !== 'CANCELED' && totalPrice > 0 && order.status !== 'PAID';
 
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'COMPLETED': return 'bg-green-100 text-green-800';
             case 'CANCELED': return 'bg-red-100 text-red-800';
             case 'CONFIRMED': return 'bg-yellow-100 text-yellow-800';
+            case 'PAID': return 'bg-purple-100 text-purple-800';
             default: return 'bg-blue-100 text-blue-800';
         }
     }
@@ -54,16 +54,25 @@ export const OrderDetailsPage = () => {
         <div className="p-6">
             <Link to="/admin/orders" className="text-blue-600 hover:underline mb-4 block">&larr; Back to All Orders</Link>
 
-            {orderId && <AddItemModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} orderId={parseInt(orderId, 10)} onSuccess={handleModalSuccess} />}
+            {/* Modals */}
+            {orderId && <AddItemModal isOpen={isAddItemModalOpen} onClose={() => setIsAddItemModalOpen(false)} orderId={parseInt(orderId, 10)} onSuccess={handleSuccess} />}
+            {order && <PaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} order={order} onSuccess={handleSuccess} />}
 
             <div className="flex justify-between items-start mb-6">
                 <div>
                     <h1 className="text-3xl font-bold">Order #{order.id}</h1>
                     <p className="text-gray-500">Placed on: {new Date(order.timestamp).toLocaleString()}</p>
                 </div>
-                <button onClick={() => setIsModalOpen(true)} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                    + Add Items
-                </button>
+                <div className="flex gap-4">
+                    <button onClick={() => setIsAddItemModalOpen(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        + Add Items
+                    </button>
+                    {isPayable && (
+                        <button onClick={() => setIsPaymentModalOpen(true)} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            Pay
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

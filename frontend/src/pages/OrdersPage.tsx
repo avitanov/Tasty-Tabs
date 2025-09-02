@@ -5,12 +5,14 @@ import { orderRepository } from '../api/orderRepository';
 import { Modal } from '../components/Modal';
 import { CreateTabOrderForm } from '../components/forms/CreateTabOrderForm';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export const OrdersPage = () => {
     const [openOrders, setOpenOrders] = useState<OrderDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { user } = useAuth();
 
     const fetchOrders = async () => {
         try {
@@ -36,17 +38,18 @@ export const OrdersPage = () => {
 
     if (loading) return <div>Loading orders...</div>;
     if (error) return <div className="text-red-500">{error}</div>;
+    if (!user) return <div className="text-red-500">User not authenticated.</div>;
 
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-3xl font-bold">Open Orders</h1>
-                <button
+                {user.user_type === "FRONT_STAFF" && <button
                     onClick={() => setIsModalOpen(true)}
                     className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
                 >
                     + Create Tab
-                </button>
+                </button>}
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Tab">

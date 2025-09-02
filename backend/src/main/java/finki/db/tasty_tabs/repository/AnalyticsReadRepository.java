@@ -204,7 +204,7 @@ public class AnalyticsReadRepository {
 
     public List<Map<String, Object>> revenueByShiftPeriodView() {
         // dynamic columns -> return as list of maps
-        return jdbc.queryForList("SELECT * FROM revenue_by_shift_period");
+        return jdbc.queryForList("SELECT * FROM v_revenue_by_shift_period");
     }
 
     public List<RevenueSplitDto> revenueSplit(LocalDate from, LocalDate to) {

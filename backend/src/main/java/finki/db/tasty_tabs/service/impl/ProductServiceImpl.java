@@ -115,6 +115,7 @@ public class ProductServiceImpl implements ProductService {
         if(dto.taxClass()!=null){
             productTmp.setTaxClass(dto.taxClass());
         }
+
         productTmp.setCategory(categoryService.findById(dto.categoryId()));
         productTmp.setDescription(dto.description());
 

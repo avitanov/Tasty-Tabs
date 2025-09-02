@@ -11,7 +11,9 @@ const navLinks = [
     { path: '/admin/shifts', label: 'Shifts' },
     { path: '/admin/employees', label: 'Employees' },
     { path: '/admin/assignments', label: 'Assignments' },
+    { path: '/admin/analytics', label: 'Analytics' }, // New Link
 ];
+
 
 
 export const Navbar = () => {

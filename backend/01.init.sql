@@ -332,13 +332,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_mv_payments_daily_channel
 
 
 -- DML
-INSERT INTO users(id, email, password, phone_number, street, city)
+INSERT INTO users(id, email, password, phone_number, street, city) -- password1
 VALUES
-    (1, 'test@hotmail.com', 'password1', '070003005', 'Mladinska 3', 'Strumica'),
-    (2, 'test2@hotmail.com', 'password2', '070001002', 'Marsal Tito 10', 'Strumica'),
-    (3, 'test3@hotmail.com', 'password1', '070003003', 'Mladinska 5', 'Strumica'),
-    (4, 'test4@hotmail.com', 'password2', '070004004', 'Marsal Tito 11', 'Strumica'),
-    (5, 'test5@hotmail.com', 'password1', '070005005', 'Mladinska 12', 'Strumica');
+    (1, 'test@hotmail.com', '$2a$10$rliIgXfgZgT1ljzxf.3NjeF1hx63s30xKfUsKjeUYA8jL/GXA1Jsy', '070003005', 'Mladinska 3', 'Strumica'),
+    (2, 'test2@hotmail.com', '$2a$10$rliIgXfgZgT1ljzxf.3NjeF1hx63s30xKfUsKjeUYA8jL/GXA1Jsy', '070001002', 'Marsal Tito 10', 'Strumica'),
+    (3, 'test3@hotmail.com', '$2a$10$rliIgXfgZgT1ljzxf.3NjeF1hx63s30xKfUsKjeUYA8jL/GXA1Jsy', '070003003', 'Mladinska 5', 'Strumica'),
+    (4, 'test4@hotmail.com', '$2a$10$rliIgXfgZgT1ljzxf.3NjeF1hx63s30xKfUsKjeUYA8jL/GXA1Jsy', '070004004', 'Marsal Tito 11', 'Strumica'),
+    (5, 'test5@hotmail.com', '$2a$10$rliIgXfgZgT1ljzxf.3NjeF1hx63s30xKfUsKjeUYA8jL/GXA1Jsy', '070005005', 'Mladinska 12', 'Strumica');
 
 INSERT INTO employees(user_id, net_salary, gross_salary)
 VALUES
@@ -597,49 +597,45 @@ ORDER BY total_revenue DESC
     LIMIT 10;
 
 -- ANALYTIC: Revenue by shift period (dynamic monthly view)
-DO
-$$
-DECLARE
-dynamic_sql text;
-    shift_columns text;
-BEGIN
-    shift_columns := (
-        SELECT string_agg(
-            format('SUM(CASE WHEN o.datetime::time BETWEEN ''%s'' AND ''%s'' THEN COALESCE(oi.quantity * oi.price, 0) ELSE 0 END) AS "%sto%s"',
-                   t.start_time, t.end_time,
-                   REPLACE(t.start_time::text, ':', ''),
-                   REPLACE(t.end_time::text, ':', '')),
-            ', '
-        )
-        FROM (
-            SELECT DISTINCT start_time, end_time
-            FROM shifts
-            ORDER BY start_time, end_time
-        ) AS t
-    );
 
-    dynamic_sql := format(
-        'DROP VIEW IF EXISTS revenue_by_shift_period;
-        CREATE VIEW revenue_by_shift_period AS
-        SELECT
-            TO_CHAR(period_date, ''YYYY-MM'') as period,
-            %s
-        FROM generate_series(
-            date_trunc(''month'', CURRENT_DATE - INTERVAL ''12 months''),
-            date_trunc(''month'', CURRENT_DATE),
-            ''1 month''::interval
-        ) period_date
-        LEFT JOIN orders o ON DATE_TRUNC(''month'', o.datetime) = period_date
-        LEFT JOIN order_items oi ON o.id = oi.order_id
-        GROUP BY period_date
-        ORDER BY period_date;',
-        shift_columns
-    );
 
-    RAISE NOTICE 'Dynamic SQL: %', dynamic_sql;
-EXECUTE dynamic_sql;
-END
-$$;
+CREATE OR REPLACE VIEW v_revenue_by_shift_period AS
+
+-- CTE to get all unique shift start and end times from your shifts table
+WITH distinct_shift_periods AS (
+    SELECT DISTINCT
+        start_time::time AS start_t,
+        end_time::time AS end_t
+    FROM
+        shifts
+)
+
+-- Main query to calculate revenue
+SELECT
+    -- 1. The month of the order, e.g., '2025-08'
+    TO_CHAR(o.datetime, 'YYYY-MM') AS period,
+
+    -- 2. The shift period string, e.g., '08:00:00-16:00:00'
+    dsp.start_t::text || '-' || dsp.end_t::text AS shift_period,
+
+    -- 3. The total revenue for that shift period within that month
+    SUM(oi.price * oi.quantity) AS total_revenue
+FROM
+    orders o
+        JOIN
+    order_items oi ON o.id = oi.order_id
+-- Join each order to a shift period if its timestamp's time falls within the start and end times
+        JOIN
+    distinct_shift_periods dsp ON o.datetime::time >= dsp.start_t AND o.datetime::time < dsp.end_t
+GROUP BY
+    period,
+    shift_period
+ORDER BY
+    period DESC,
+    shift_period ASC;
+
+SELECT * FROM v_revenue_by_shift_period;
+
 
 -- ANALYTIC: Revenue split (Online vs Tab) for a date range (by order date)
 DROP FUNCTION IF EXISTS get_revenue_split(date, date);
@@ -709,5 +705,16 @@ FROM shift_revenue sr
 WHERE sr.shift_revenue > ma.avg_revenue_per_shift
 ORDER BY period DESC, sr.shift_revenue DESC;
 
+SELECT setval('public.users_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.users;
+SELECT setval('public.staff_roles_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.staff_roles;
+SELECT setval('public.shifts_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.shifts;
+SELECT setval('public.assignments_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.assignments;
+SELECT setval('public.reservations_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.reservations;
+SELECT setval('public.frontstaff_managed_reservations_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.frontstaff_managed_reservations;
+SELECT setval('public.categories_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.categories;
+SELECT setval('public.products_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.products;
+SELECT setval('public.orders_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.orders;
+SELECT setval('public.order_items_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.order_items;
+SELECT setval('public.payments_id_seq', COALESCE(MAX(id + 1), 1), false) FROM public.payments;
 
 COMMIT;

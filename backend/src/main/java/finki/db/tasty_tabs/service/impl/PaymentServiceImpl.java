@@ -11,12 +11,14 @@ import finki.db.tasty_tabs.service.PaymentService;
 import finki.db.tasty_tabs.service.viewRefreshers.MvRefresher;
 import finki.db.tasty_tabs.web.dto.CreatePaymentDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
@@ -29,6 +31,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public Payment createPayment(CreatePaymentDto dto) {
+        log.info("Creating payment for orderId: {}", dto.orderId());
         Order order = orderRepository.findById(dto.orderId())
                 .orElseThrow(() -> new OrderNotFoundException(dto.orderId()));
 
