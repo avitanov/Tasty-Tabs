@@ -36,9 +36,24 @@ public class ReservationServiceImpl implements ReservationService {
     public List<ReservationDto> getAllReservationsWithStatus() {
         return reservationRepository.findAll().stream()
                 .map(r -> {
-                    boolean accepted =
-                            reservationManagedFrontStaffRepository.existsByReservation_Id(r.getId()); // or existsByIdReservationId(...)
-                    return ReservationDto.from(r, accepted);
+                    // Fetch assignment (if any)
+                    var opt = reservationManagedFrontStaffRepository.findFirstByReservation_Id(r.getId());
+                    boolean accepted = opt.isPresent();
+
+                    Long tableNumber = opt.map(m -> {
+                        // Assuming RestaurantTable.tableNumber is an Integer/Long
+                        var t = m.getRestaurantTable();
+                        return (t == null) ? null : (t.getTableNumber() == null ? null : t.getTableNumber().longValue());
+                    }).orElse(null);
+
+                    String frontStaffName = opt.map(m -> {
+                        // Safest fallback: use the front-staff user's email
+                        var fs = m.getFrontStaff();
+                        return (fs != null && fs.getEmail() != null) ? fs.getEmail() : "Front Staff";
+                        // If you *do* store names in your model, replace with fs.getFullName() (or first/last)
+                    }).orElse(null);
+
+                    return ReservationDto.from(r, accepted, tableNumber, frontStaffName);
                 })
                 .toList();
     }
