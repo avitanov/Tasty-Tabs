@@ -95,6 +95,8 @@ public class GlobalExceptionHandler {
 
         log.error("Unexpected exception: {}", exception.getMessage(), exception);
 
+        exception.printStackTrace();
+
         return errorDetail;
     }
 }

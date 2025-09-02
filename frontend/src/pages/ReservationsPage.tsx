@@ -6,6 +6,7 @@ import { Modal } from '../components/Modal';
 import { AcceptReservationForm } from '../components/forms/AcceptReservationForm';
 import { CreateReservationForm } from '../components/forms/CreateReservationForm'; // Import the new form
 import { useAuth } from '../hooks/useAuth';
+import ReservationCard from '../components/reservations/ReservationCard';
 
 export const ReservationsPage = () => {
     const { user } = useAuth();
@@ -34,6 +35,17 @@ export const ReservationsPage = () => {
         setSelectedReservation(null);
     };
 
+    const handleDeleteReservation = async (reservationId: number) => {
+        if (window.confirm('Are you sure you want to decline this reservation?')) {
+            try {
+                await reservationRepository.deleteReservation(reservationId);
+                fetchReservations();
+            } catch (error) {
+                alert('Failed to decline reservation.');
+            }
+        }
+    };
+
     const handleFormSuccess = () => {
         // This function can now be used by both forms
         handleCloseAcceptModal();
@@ -46,7 +58,7 @@ export const ReservationsPage = () => {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-4">
-                <h1 className="text-3xl font-bold">Today's Reservations</h1>
+                <h1 className="text-3xl font-bold">All Reservations</h1>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
                     className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
@@ -78,23 +90,20 @@ export const ReservationsPage = () => {
                 </Modal>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {reservations.map(res => (
-                    <div key={res.id} className="bg-white p-4 rounded-lg shadow">
-                        <p className="font-bold">{res.email}</p>
-                        <p>Time: {new Date(res.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                        <p>Guests: {res.number_of_people}</p>
-                        {user?.user_type === "FRONT_STAFF" && <div className="mt-4">
-                            <button
-                                onClick={() => handleOpenAcceptModal(res)}
-                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm"
-                            >
-                                Accept
-                            </button>
-                        </div>}
-                    </div>
-                ))}
+            <div className="min-h-screen p-4 sm:p-6 lg:p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {reservations.map(res => (
+                        <ReservationCard
+                            key={res.id}
+                            reservation={res}
+                            user={user}
+                            onAccept={handleOpenAcceptModal}
+                            onDecline={() => handleDeleteReservation(res.id)}
+                        />
+                    ))}
+                </div>
             </div>
+
         </div>
     );
 };

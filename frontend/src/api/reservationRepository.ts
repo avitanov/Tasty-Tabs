@@ -5,7 +5,7 @@ import type { ReservationDto, CreateReservationDto } from "../types/api";
 
 export const reservationRepository = {
   getTodayReservations: async (): Promise<ReservationDto[]> => {
-    const { data } = await axiosClient.get("/reservations/today");
+    const { data } = await axiosClient.get("/reservations");
     return data;
   },
   acceptReservation: async (

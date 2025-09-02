@@ -1,6 +1,7 @@
 package finki.db.tasty_tabs.service.impl;
 
 
+import finki.db.tasty_tabs.aspect.annotation.CheckOnDuty;
 import finki.db.tasty_tabs.entity.Order;
 import finki.db.tasty_tabs.entity.Payment;
 import finki.db.tasty_tabs.entity.exceptions.OrderNotFoundException;
@@ -30,6 +31,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
+    @CheckOnDuty
     public Payment createPayment(CreatePaymentDto dto) {
         log.info("Creating payment for orderId: {}", dto.orderId());
         Order order = orderRepository.findById(dto.orderId())
@@ -69,6 +71,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
+    @CheckOnDuty
     public Payment updatePayment(Long id, CreatePaymentDto dto) {
         Payment existingPayment = findPaymentById(id);
 

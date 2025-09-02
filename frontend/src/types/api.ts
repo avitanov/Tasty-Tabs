@@ -74,6 +74,9 @@ export interface ReservationDto {
   datetime: string;
   creation_timestamp: string;
   number_of_people: number;
+  assigned_table_number?: number;
+  front_staff_name?: string; // Assuming manager email
+  status: "PENDING" | "ACCEPTED" | "CANCELLED" | "COMPLETED";
   email: string; // Assuming user email
 }
 

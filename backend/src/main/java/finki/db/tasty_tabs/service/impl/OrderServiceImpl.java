@@ -1,5 +1,6 @@
 package finki.db.tasty_tabs.service.impl;
 
+import finki.db.tasty_tabs.aspect.annotation.CheckOnDuty;
 import finki.db.tasty_tabs.entity.*;
 import finki.db.tasty_tabs.entity.exceptions.*;
 import finki.db.tasty_tabs.repository.*;
@@ -43,6 +44,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @CheckOnDuty
     public Order updateOrder(Long id, CreateOrderDto dto) {
         Order existingOrder = findById(id);
 
@@ -81,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @CheckOnDuty
     public void updateOrderStatus(Long orderId, String newStatus) {
         Order order = findById(orderId);
         order.setStatus(newStatus);
@@ -90,6 +93,7 @@ public class OrderServiceImpl implements OrderService {
     // Methods for Order Items
     @Override
     @Transactional
+    @CheckOnDuty
     public OrderItem addItemToOrder(Long orderId, CreateOrderItemDto itemDto) {
         Order order = findById(orderId);
         OrderItem orderItem = new OrderItem();
@@ -106,6 +110,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CheckOnDuty
     public void decreaseOrderItemQuantity(Long orderItemId) {
         OrderItem orderItem = orderItemRepository.findById(orderItemId)
                 .orElseThrow(OrderItemNotFoundException::new);
@@ -119,6 +124,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CheckOnDuty
     public OrderItem updateOrderItem(Long orderItemId, CreateOrderItemDto itemDto) {
         OrderItem orderItem = orderItemRepository.findById(orderItemId)
                 .orElseThrow(OrderItemNotFoundException::new);
@@ -133,6 +139,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CheckOnDuty
     public void deleteOrderItem(Long orderItemId) {
         orderItemRepository.deleteById(orderItemId);
     }
@@ -196,6 +203,7 @@ public class OrderServiceImpl implements OrderService {
     // Specific TabOrder methods
     @Override
     @Transactional
+    @CheckOnDuty
     public TabOrder createTabOrder(CreateOrderDto dto, String userEmail) {
         log.debug("User {} creating a tab order for table {}", userEmail, dto.tableNumber());
         User user = userRepository.findByEmail(userEmail)
@@ -253,6 +261,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CheckOnDuty
     public TabOrder assignOrderToStaff(Long orderId, Long frontStaffId) {
         TabOrder tabOrder = tabOrderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
@@ -265,6 +274,7 @@ public class OrderServiceImpl implements OrderService {
     // General methods for all order types
     @Override
     @Transactional
+    @CheckOnDuty
     public Order cancelOrder(Long orderId) {
         Order order = findById(orderId);
         order.setStatus("CANCELED");

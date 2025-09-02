@@ -47,11 +47,7 @@ public class UserDetailsServiceImpl implements CustomUserDetailsService {
         authorities.add(grantedAuthority);
         log.debug("Applying role {} to user {}", grantedAuthority.getAuthority(), user.getId());
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                authorities
-        );
+        return new CustomUserDetails(user);
     }
 
     private static GrantedAuthority getGrantedAuthority(User user) {

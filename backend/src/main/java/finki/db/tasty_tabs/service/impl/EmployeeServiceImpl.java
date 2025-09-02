@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -55,6 +56,12 @@ class EmployeeServiceImpl implements EmployeeService { // New Service Implementa
         }
 
         return AssignmentDto.fromAssignment(assignment);
+    }
+
+    @Override
+    public boolean isOnActiveShift(Long employeeId) {
+        Optional<Assignment> assignment = assignmentRepository.findFirstByEmployee_IdAndClockInTimeNotNullAndClockOutTimeNull(employeeId);
+        return assignment.isPresent();
     }
 
     @Override

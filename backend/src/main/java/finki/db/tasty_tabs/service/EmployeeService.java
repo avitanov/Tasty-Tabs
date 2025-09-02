@@ -12,4 +12,5 @@ public interface EmployeeService { // New Service
     Employee createEmployee(CreateEmployeeRequest request);
 
     AssignmentDto getNextShiftForEmployee(Long employeeId);
+    boolean isOnActiveShift(Long employeeId);
 }

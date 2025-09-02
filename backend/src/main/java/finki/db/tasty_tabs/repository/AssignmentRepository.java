@@ -12,4 +12,5 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 
     Optional<Assignment> findFirstByEmployee_IdOrderByShiftStartAsc(Long employeeId);
     Optional<Assignment> findFirstByEmployee_IdAndClockOutTimeNullOrderByShiftStartAsc(Long employeeId);
+    Optional<Assignment> findFirstByEmployee_IdAndClockInTimeNotNullAndClockOutTimeNull(Long employeeId);
 }

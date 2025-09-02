@@ -130,7 +130,7 @@ public class ReservationServiceImpl implements ReservationService {
         ReservationManagedFrontStaffId id = new ReservationManagedFrontStaffId(
                 reservation.getId(),
                 frontStaff.getId(),
-                table.getTableNumber().longValue()
+                table.getTableNumber()
         );
 
         ReservationManagedFrontStaff managedReservation = new ReservationManagedFrontStaff();
