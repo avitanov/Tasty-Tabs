@@ -25,6 +25,7 @@ export const ManagerPerformanceTable = () => {
                         <tr>
                             <th className="py-2 text-left">Manager</th>
                             <th className="py-2 text-left">Shift Date</th>
+                            <th className="py-2 text-left">Shift Time</th>
                             <th className="py-2 text-right">Shift Revenue</th>
                             <th className="py-2 text-right">Average Revenue</th>
                         </tr>
@@ -34,6 +35,7 @@ export const ManagerPerformanceTable = () => {
                             <tr key={i} className="border-t">
                                 <td className="py-2">{shift.manager_email}</td>
                                 <td className="py-2">{new Date(shift.shift_date).toLocaleDateString()}</td>
+                                <td className="py-2">{shift.shift_start_time} - {shift.shift_end_time}</td>
                                 <td className="py-2 text-right font-bold text-green-600">${shift.shift_revenue.toFixed(2)}</td>
                                 <td className="py-2 text-right text-gray-600">${shift.avg_revenue_per_shift.toFixed(2)}</td>
                             </tr>

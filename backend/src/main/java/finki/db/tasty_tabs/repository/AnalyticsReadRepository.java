@@ -218,52 +218,66 @@ public class AnalyticsReadRepository {
 
     public List<ManagerShiftAboveAvgDto> managersShiftsAboveMonthlyAvgCurrentYear() {
         String sql = """
-            WITH shifts_in_year AS (
-              SELECT s.id AS shift_id, s.date, s.start_time, s.end_time, s.manager_id
-              FROM shifts s
-              WHERE s.date >= date_trunc('year', CURRENT_DATE)::date
-                AND s.date <  (date_trunc('year', CURRENT_DATE) + INTERVAL '1 year')::date
-            ),
-            shift_revenue AS (
-              SELECT
-                siy.shift_id,
-                date_trunc('month', siy.date)::date AS month_start,
-                siy.date AS shift_date,
-                siy.manager_id,
-                COALESCE(SUM(oi.quantity * oi.price), 0)::numeric(14,2) AS shift_revenue
-              FROM shifts_in_year siy
-              LEFT JOIN orders o
-                ON o.datetime::date = siy.date
-               AND o.datetime::time >= siy.start_time
-               AND o.datetime::time <  siy.end_time
-              LEFT JOIN order_items oi ON oi.order_id = o.id
-              GROUP BY siy.shift_id, month_start, siy.date, siy.manager_id
-            ),
-            monthly_avg AS (
-              SELECT month_start, AVG(shift_revenue)::numeric(14,2) AS avg_revenue_per_shift
-              FROM shift_revenue
-              GROUP BY month_start
-            )
-            SELECT
-              to_char(sr.month_start, 'YYYY-MM') AS period,
-              sr.shift_id,
-              sr.shift_date,
-              u.email AS manager_email,
-              sr.shift_revenue,
-              ma.avg_revenue_per_shift,
-              (sr.shift_revenue - ma.avg_revenue_per_shift)::numeric(14,2) AS above_by
-            FROM shift_revenue sr
-            JOIN monthly_avg ma ON ma.month_start = sr.month_start
-            JOIN managers m     ON m.employee_id = sr.manager_id
-            JOIN employees e    ON e.user_id     = m.employee_id
-            JOIN users u        ON u.id          = e.user_id
-            WHERE sr.shift_revenue > ma.avg_revenue_per_shift
-            ORDER BY period DESC, sr.shift_revenue DESC
-            """;
+        WITH manager_worked_shifts AS (
+          SELECT DISTINCT
+                 s.id AS shift_id,
+                 s.date,
+                 s.start_time,
+                 s.end_time,
+                 a.employee_id AS manager_id
+          FROM assignments a
+          JOIN shifts s   ON s.id = a.shift_id
+          JOIN managers m ON m.employee_id = a.employee_id
+          WHERE s.date >= date_trunc('year', CURRENT_DATE)::date
+            AND s.date <  (date_trunc('year', CURRENT_DATE) + INTERVAL '1 year')::date
+        ),
+        shift_revenue AS (
+          SELECT
+            mws.shift_id,
+            date_trunc('month', mws.date)::date AS month_start,
+            mws.date AS shift_date,
+            mws.start_time,
+            mws.end_time,
+            mws.manager_id,
+            COALESCE(SUM(oi.quantity * oi.price), 0)::numeric(14,2) AS shift_revenue
+          FROM manager_worked_shifts mws
+          LEFT JOIN orders o
+            ON o.datetime::date = mws.date
+           AND o.datetime::time >= mws.start_time
+           AND o.datetime::time <  mws.end_time
+          LEFT JOIN order_items oi ON oi.order_id = o.id
+          GROUP BY mws.shift_id, month_start, mws.date, mws.start_time, mws.end_time, mws.manager_id
+        ),
+        monthly_avg AS (
+          SELECT month_start, AVG(shift_revenue)::numeric(14,2) AS avg_revenue_per_shift
+          FROM shift_revenue
+          GROUP BY month_start
+        )
+        SELECT
+          to_char(sr.month_start, 'YYYY-MM') AS period,
+          sr.shift_id,
+          sr.shift_date,
+          sr.start_time AS shift_start_time,
+          sr.end_time   AS shift_end_time,
+          u.email AS manager_email,
+          sr.shift_revenue,
+          ma.avg_revenue_per_shift,
+          (sr.shift_revenue - ma.avg_revenue_per_shift)::numeric(14,2) AS above_by
+        FROM shift_revenue sr
+        JOIN monthly_avg ma ON ma.month_start = sr.month_start
+        JOIN managers m     ON m.employee_id = sr.manager_id
+        JOIN employees e    ON e.user_id     = m.employee_id
+        JOIN users u        ON u.id          = e.user_id
+        WHERE sr.shift_revenue > ma.avg_revenue_per_shift
+        ORDER BY period DESC, sr.shift_revenue DESC, sr.shift_date DESC
+        """;
+
         return jdbc.query(sql, (rs, i) -> new ManagerShiftAboveAvgDto(
                 rs.getString("period"),
                 rs.getLong("shift_id"),
                 rs.getDate("shift_date").toLocalDate(),
+                rs.getObject("shift_start_time", java.time.LocalTime.class),
+                rs.getObject("shift_end_time",   java.time.LocalTime.class),
                 rs.getString("manager_email"),
                 rs.getBigDecimal("shift_revenue"),
                 rs.getBigDecimal("avg_revenue_per_shift"),

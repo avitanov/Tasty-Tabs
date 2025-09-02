@@ -37,7 +37,7 @@ const DashboardPage = () => {
 
     return (
         <div className="p-6">
-            {isManager ? <ManagerDashboard /> : <EmployeeDashboard />}
+            {isManager ? <EmployeeDashboard /> : <EmployeeDashboard />}
         </div>
     );
 };

@@ -32,7 +32,7 @@ export const Navbar = () => {
     return (
         <nav className="bg-gray-800 text-white p-4 flex justify-between items-center">
             <div className="flex items-center space-x-6">
-                <NavLink to="/" className="text-xl font-bold">TastyTabs</NavLink>
+                <NavLink to="/admin" className="text-xl font-bold">TastyTabs</NavLink>
                 <div className="flex space-x-4">
                     {isAuthenticated && availableLinks.map(link => (
                         <NavLink

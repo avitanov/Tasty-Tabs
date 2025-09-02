@@ -231,6 +231,8 @@ export interface ManagerShiftAboveAvgDto {
   manager_email: string;
   shift_date: string;
   shift_revenue: number;
+  shift_start_time: string;
+  shift_end_time: string;
   avg_revenue_per_shift: number;
 }
 
