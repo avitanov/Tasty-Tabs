@@ -7,6 +7,7 @@ import finki.db.tasty_tabs.entity.exceptions.TableNotFoundException;
 import finki.db.tasty_tabs.repository.*;
 import finki.db.tasty_tabs.service.ReservationService;
 import finki.db.tasty_tabs.web.dto.CreateReservationDto;
+import finki.db.tasty_tabs.web.dto.ReservationDto;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +33,15 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+    public List<ReservationDto> getAllReservationsWithStatus() {
+        return reservationRepository.findAll().stream()
+                .map(r -> {
+                    boolean accepted =
+                            reservationManagedFrontStaffRepository.existsByReservation_Id(r.getId()); // or existsByIdReservationId(...)
+                    return ReservationDto.from(r, accepted);
+                })
+                .toList();
     }
-
     @Override
     public Reservation getReservationById(Long id) {
         return reservationRepository.findById(id)

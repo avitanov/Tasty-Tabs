@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ReservationManagedFrontStaffRepository extends JpaRepository<ReservationManagedFrontStaff, ReservationManagedFrontStaffId> { }
+public interface ReservationManagedFrontStaffRepository extends JpaRepository<ReservationManagedFrontStaff, ReservationManagedFrontStaffId> {
+    boolean existsByReservation_Id(Long reservationId);
+}

@@ -27,10 +27,7 @@ public class ReservationController {
     @Operation(summary = "Get all reservations")
     @GetMapping
     public List<ReservationDto> getAll() {
-        return reservationService.getAllReservations()
-                .stream()
-                .map(ReservationDto::from)
-                .collect(Collectors.toList());
+        return reservationService.getAllReservationsWithStatus();
     }
 
     @Operation(summary = "Get reservation by ID")

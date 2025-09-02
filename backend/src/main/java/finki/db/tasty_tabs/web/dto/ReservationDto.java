@@ -1,24 +1,38 @@
 package finki.db.tasty_tabs.web.dto;
 import finki.db.tasty_tabs.entity.Reservation;
-import lombok.Data;
 import java.time.LocalDateTime;
-import java.util.List;
 public record ReservationDto(
         Long id,
         Integer stayLength,
         LocalDateTime datetime,
         LocalDateTime creationTimestamp,
         Integer numberOfPeople,
-        String email
+        String email,
+        String status // "ACCEPTED" | "PENDING"
 ) {
-    public static ReservationDto from(Reservation reservation) {
+    // legacy factory (defaults to PENDING)
+    public static ReservationDto from(Reservation r) {
         return new ReservationDto(
-                reservation.getId(),
-                reservation.getStayLength(),
-                reservation.getDatetime(),
-                reservation.getCreationTimestamp(),
-                reservation.getNumberOfPeople(),
-                reservation.getUser().getEmail()
+                r.getId(),
+                r.getStayLength(),
+                r.getDatetime(),
+                r.getCreationTimestamp(),
+                r.getNumberOfPeople(),
+                r.getUser().getEmail(),
+                "PENDING"
+        );
+    }
+
+    // new factory with accepted flag
+    public static ReservationDto from(Reservation r, boolean accepted) {
+        return new ReservationDto(
+                r.getId(),
+                r.getStayLength(),
+                r.getDatetime(),
+                r.getCreationTimestamp(),
+                r.getNumberOfPeople(),
+                r.getUser().getEmail(),
+                accepted ? "ACCEPTED" : "PENDING"
         );
     }
 }
