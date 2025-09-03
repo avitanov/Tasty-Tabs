@@ -21,14 +21,7 @@ public class AnalyticsReadRepository {
                 SELECT
                     fs.employee_id,
                     u.email as server_email,
-                    u.phone_number,
-                    e.net_salary,
-                    e.gross_salary,
-                    fs.tip_percent,
-                    sr.name as staff_role_name,
                     COUNT(DISTINCT a.id) as total_assignments,
-                    COUNT(DISTINCT s.date) as days_worked,
-                    AVG(EXTRACT(EPOCH FROM (a.clock_out_time - a.clock_in_time))/3600) as avg_hours_per_shift,
                     COUNT(DISTINCT o.id) as orders_processed,
                     COALESCE(SUM(oi.quantity * oi.price), 0) as total_revenue_generated
                 FROM front_staff fs
@@ -52,22 +45,14 @@ public class AnalyticsReadRepository {
                     CASE WHEN total_assignments > 0
                          THEN (orders_processed::float / total_assignments)
                          ELSE 0 END as orders_per_assignment,
-                    CASE WHEN gross_salary > 0
-                         THEN total_revenue_generated / gross_salary
-                         ELSE 0 END as revenue_to_salary_ratio,
                     CASE WHEN orders_processed > 0
                          THEN total_revenue_generated / orders_processed
-                         ELSE 0 END as avg_revenue_per_order,
-                    CASE WHEN tip_percent > 0 AND total_revenue_generated > 0
-                         THEN (total_revenue_generated * tip_percent / 100)
-                         ELSE 0 END as estimated_tips_earned
+                         ELSE 0 END as avg_revenue_per_order
                 FROM server_metrics
             )
             SELECT
                 server_email,
-                phone_number,
                 total_assignments,
-                days_worked,
                 orders_processed,
                 total_revenue_generated,
                 revenue_rank,
@@ -79,9 +64,7 @@ public class AnalyticsReadRepository {
             """;
         return jdbc.query(sql, (rs, i) -> new ServerPerformanceDto(
                 rs.getString("server_email"),
-                rs.getString("phone_number"),
                 getLong(rs, "total_assignments"),
-                getLong(rs, "days_worked"),
                 getLong(rs, "orders_processed"),
                 rs.getBigDecimal("total_revenue_generated"),
                 rs.getInt("revenue_rank"),
@@ -139,16 +122,7 @@ public class AnalyticsReadRepository {
                 COUNT(DISTINCT o.id) as total_orders,
                 COUNT(DISTINCT r.user_id) as unique_customers,
                 COUNT(DISTINCT fs.employee_id) as active_employees,
-                COALESCE(SUM(oi.quantity * oi.price), 0) as daily_revenue,
-                CASE WHEN COUNT(DISTINCT r.id) = 0 THEN false
-                     ELSE (COUNT(DISTINCT o.id) * 100.0 / COUNT(DISTINCT r.id)) >= 70
-                END as meets_conversion_target,
-                CASE
-                    WHEN COALESCE(SUM(oi.quantity * oi.price), 0) >= 2000 THEN 'High Revenue Day'
-                    WHEN COALESCE(SUM(oi.quantity * oi.price), 0) >= 1000 THEN 'Good Revenue Day'
-                    WHEN COALESCE(SUM(oi.quantity * oi.price), 0) >= 500  THEN 'Average Revenue Day'
-                    ELSE 'Low Revenue Day'
-                END as revenue_category
+                COALESCE(SUM(oi.quantity * oi.price), 0) as daily_revenue
             FROM generate_series(
                 CURRENT_DATE - (? || ' days')::interval,
                 CURRENT_DATE,
@@ -168,9 +142,7 @@ public class AnalyticsReadRepository {
                 getLong(rs, "total_orders"),
                 getLong(rs, "unique_customers"),
                 getLong(rs, "active_employees"),
-                rs.getBigDecimal("daily_revenue"),
-                rs.getBoolean("meets_conversion_target"),
-                rs.getString("revenue_category")
+                rs.getBigDecimal("daily_revenue")
         ));
     }
 

@@ -9,7 +9,5 @@ public record DailyOpsDto(
         Long totalOrders,
         Long uniqueCustomers,
         Long activeEmployees,
-        BigDecimal dailyRevenue,
-        Boolean meetsConversionTarget,
-        String revenueCategory
+        BigDecimal dailyRevenue
 ) {}

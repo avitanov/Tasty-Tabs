@@ -441,14 +441,7 @@ WITH server_metrics AS (
     SELECT
         fs.employee_id,
         u.email as server_email,
-        u.phone_number,
-        e.net_salary,
-        e.gross_salary,
-        fs.tip_percent,
-        sr.name as staff_role_name,
         COUNT(DISTINCT a.id) as total_assignments,
-        COUNT(DISTINCT s.date) as days_worked,
-        AVG(EXTRACT(EPOCH FROM (a.clock_out_time - a.clock_in_time))/3600) as avg_hours_per_shift,
         COUNT(DISTINCT o.id) as orders_processed,
         COALESCE(SUM(oi.quantity * oi.price), 0) as total_revenue_generated
     FROM front_staff fs
@@ -475,27 +468,15 @@ SELECT *,
     ELSE 0
     END as orders_per_assignment,
     CASE
-    WHEN gross_salary > 0
-    THEN total_revenue_generated / gross_salary
-    ELSE 0
-    END as revenue_to_salary_ratio,
-    CASE
     WHEN orders_processed > 0
     THEN total_revenue_generated / orders_processed
     ELSE 0
-    END as avg_revenue_per_order,
-    CASE
-    WHEN tip_percent > 0 AND total_revenue_generated > 0
-    THEN (total_revenue_generated * tip_percent / 100)
-    ELSE 0
-    END as estimated_tips_earned
+    END as avg_revenue_per_order
 FROM server_metrics
     )
 SELECT
     server_email,
-    phone_number,
     total_assignments,
-    days_worked,
     orders_processed,
     total_revenue_generated,
     revenue_rank,
@@ -550,17 +531,7 @@ SELECT
     COUNT(DISTINCT o.id) as total_orders,
     COUNT(DISTINCT r.user_id) as unique_customers,
     COUNT(DISTINCT fs.employee_id) as active_employees,
-    COALESCE(SUM(oi.quantity * oi.price), 0) as daily_revenue,
-    CASE
-        WHEN COUNT(DISTINCT r.id) = 0 THEN false
-        ELSE (COUNT(DISTINCT o.id) * 100.0 / COUNT(DISTINCT r.id)) >= 70
-        END as meets_conversion_target,
-    CASE
-        WHEN COALESCE(SUM(oi.quantity * oi.price), 0) >= 2000 THEN 'High Revenue Day'
-        WHEN COALESCE(SUM(oi.quantity * oi.price), 0) >= 1000 THEN 'Good Revenue Day'
-        WHEN COALESCE(SUM(oi.quantity * oi.price), 0) >= 500 THEN 'Average Revenue Day'
-        ELSE 'Low Revenue Day'
-        END as revenue_category
+    COALESCE(SUM(oi.quantity * oi.price), 0) as daily_revenue
 FROM generate_series(
                          CURRENT_DATE - INTERVAL '30 days',
                          CURRENT_DATE,
@@ -598,10 +569,7 @@ ORDER BY total_revenue DESC
 
 -- ANALYTIC: Revenue by shift period (dynamic monthly view)
 
-
 CREATE OR REPLACE VIEW v_revenue_by_shift_period AS
-
--- CTE to get all unique shift start and end times from your shifts table
 WITH distinct_shift_periods AS (
     SELECT DISTINCT
         start_time::time AS start_t,
@@ -609,22 +577,14 @@ WITH distinct_shift_periods AS (
     FROM
         shifts
 )
-
--- Main query to calculate revenue
 SELECT
-    -- 1. The month of the order, e.g., '2025-08'
     TO_CHAR(o.datetime, 'YYYY-MM') AS period,
-
-    -- 2. The shift period string, e.g., '08:00:00-16:00:00'
     dsp.start_t::text || '-' || dsp.end_t::text AS shift_period,
-
-    -- 3. The total revenue for that shift period within that month
     SUM(oi.price * oi.quantity) AS total_revenue
 FROM
     orders o
         JOIN
     order_items oi ON o.id = oi.order_id
--- Join each order to a shift period if its timestamp's time falls within the start and end times
         JOIN
     distinct_shift_periods dsp ON o.datetime::time >= dsp.start_t AND o.datetime::time < dsp.end_t
 GROUP BY

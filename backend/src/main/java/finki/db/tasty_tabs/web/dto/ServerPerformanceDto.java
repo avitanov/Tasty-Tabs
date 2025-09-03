@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 
 public record ServerPerformanceDto(
         String serverEmail,
-        String phoneNumber,
         Long totalAssignments,
-        Long daysWorked,
         Long ordersProcessed,
         BigDecimal totalRevenueGenerated,
         Integer revenueRank,
